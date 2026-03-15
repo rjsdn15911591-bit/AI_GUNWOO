@@ -1,7 +1,7 @@
 # Week 1 과제 분석 보고서
 
 ## 과제 개요
-- 학습 데이터: `y = 2x - 2`, `y = 3x + 2` (노이즈 포함)
+- 학습 데이터: `y = 2x - 1`, `y = 3x + 2` (노이즈 포함)
 - 비교 방법: 신경망(TensorFlow) vs NumPy Polyfit vs SciPy Curve Fit
 
 ---
