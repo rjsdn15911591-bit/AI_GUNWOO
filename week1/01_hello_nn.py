@@ -11,14 +11,14 @@ if not os.path.exists(output_dir):
 print("TensorFlow Version:", tf.__version__)
 
 # 1. 데이터 준비 (Data Preparation)
-# 학습할 관계: y = 2x - 1
+# 학습할 관계: y = 3x + 2
 # 입력(x)와 정답(y) 데이터 생성
 X = np.array([-1.0, 0.0, 1.0, 2.0, 3.0, 4.0], dtype=float)
-y_clean = np.array([-3.0, -1.0, 1.0, 3.0, 5.0, 7.0], dtype=float)
+y_clean = np.array([-1.0, 2.0, 5.0, 8.0, 11.0, 14.0], dtype=float)
 
 # Add random noise
 np.random.seed(42)
-noise = np.random.normal(loc=0.0, scale=1.0, size=len(X))
+noise = np.random.normal(loc=0.0, scale=5.0, size=len(X))
 y = y_clean + noise
 
 print("\nTraining Data:")
@@ -48,7 +48,7 @@ print("Training finished!")
 new_x = 10.0
 prediction = model.predict(np.array([[new_x]]))
 print(f"\nPrediction for x={new_x}: {prediction[0][0]:.4f}")
-print(f"Expected value: {2 * new_x - 1}")
+print(f"Expected value: {3 * new_x + 2}")
 
 # 6. 학습 과정 시각화 (Visualization)
 # 6-1. Loss Graph
@@ -64,7 +64,7 @@ print(f"\nLoss plot saved to {os.path.join(output_dir, 'training_loss.png')}")
 # 6-2. Model Fit Graph
 plt.figure(figsize=(10, 6))
 plt.scatter(X, y, color='red', label='Noisy Data', s=100)
-plt.plot(X, y_clean, 'k:', label='True Function (y=2x-1)', alpha=0.5)
+plt.plot(X, y_clean, 'k:', label='True Function (y=3x+2)', alpha=0.5)
 
 # Predict for plotting line
 x_range = np.linspace(-2, 5, 100)
@@ -84,6 +84,6 @@ weights = model.get_weights()
 w = weights[0][0][0]
 b = weights[1][0]
 print(f"\nLearned Parameters:")
-print(f"Weight (w): {w:.4f} (Expected: 2.0)")
-print(f"Bias (b): {b:.4f} (Expected: -1.0)")
+print(f"Weight (w): {w:.4f} (Expected: 3.0)")
+print(f"Bias (b): {b:.4f} (Expected: 2.0)")
 print(f"Formula: y = {w:.4f}x + {b:.4f}")

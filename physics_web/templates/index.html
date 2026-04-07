@@ -1,0 +1,610 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=780" />
+  <meta name="description" content="부산대학교 물리학과 홈페이지" />
+  <meta name="keywords" content="부산대학교,물리학과,PNU,Physics" />
+  <title>부산대학교 물리학과 :: Dept. of Physics, PNU</title>
+  <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+</head>
+<body>
+
+<div id="wrapper">
+
+<!-- ═══════════════════════════════════════════════════
+     HEADER
+═══════════════════════════════════════════════════ -->
+<div id="header">
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="logo-box">PNU<br/>물리</div>
+      <div>
+        <div class="site-title-kr">부산대학교 물리학과</div>
+        <div class="site-title-en">Department of Physics, Pusan National University</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="visitor-box">
+        오늘방문: <span id="visit-today">00000</span> &nbsp;|&nbsp; 총방문: <span id="visit-total">0000000</span>
+      </div>
+      <div class="header-links">
+        <a href="#">사이트맵</a>
+        <a href="#">이메일무단수집거부</a>
+        <a href="https://www.pusan.ac.kr" target="_blank">PNU 포털</a>
+        <a href="#">English</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MARQUEE -->
+<div class="marquee-bar">
+  <span class="marquee-label">★ 공지</span>
+  <div class="marquee-text">
+    &nbsp;&nbsp;&nbsp;
+    ※ 2026년도 1학기 신입생 오리엔테이션 : 3월 15일(일) 오후 2시 제1물리관 대강당 &nbsp;&nbsp;|&nbsp;&nbsp;
+    ※ BK21 연구 세미나 : 4월 1일(수) 오후 3시 제2물리관 302호 &nbsp;&nbsp;|&nbsp;&nbsp;
+    ※ 중간고사 : 4월 14일(화) ~ 4월 18일(토) &nbsp;&nbsp;|&nbsp;&nbsp;
+    ※ 국제 물리학 심포지엄 2026 : 4월 22일(수) 부산대 컨벤션센터
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     GNB (GLOBAL NAVIGATION BAR)
+═══════════════════════════════════════════════════ -->
+<div id="gnb">
+  <div class="gnb-item">
+    <a class="gnb-link" href="#">학과소개</a>
+    <div class="dropdown">
+      <a href="#">학과장 인사말</a>
+      <a href="#">학과 연혁</a>
+      <a href="#">학과 현황</a>
+      <a href="#">오시는길</a>
+    </div>
+  </div>
+  <div class="gnb-item">
+    <a class="gnb-link" href="#">교육</a>
+    <div class="dropdown">
+      <a href="#">학부 교육과정</a>
+      <a href="#">대학원 교육과정</a>
+      <a href="#">강의시간표</a>
+      <a href="#">수강신청 안내</a>
+    </div>
+  </div>
+  <div class="gnb-item">
+    <a class="gnb-link" href="#faculty-section">구성원</a>
+    <div class="dropdown">
+      <a href="#faculty-section">교수진</a>
+      <a href="#">명예교수</a>
+      <a href="#">행정직원</a>
+      <a href="#">연구원/조교</a>
+    </div>
+  </div>
+  <div class="gnb-item">
+    <a class="gnb-link" href="#">연구</a>
+    <div class="dropdown">
+      <a href="#">연구분야</a>
+      <a href="#">연구실 소개</a>
+      <a href="#">연구성과</a>
+      <a href="#">연구장비</a>
+    </div>
+  </div>
+  <div class="gnb-item">
+    <a class="gnb-link" href="#">학과행사</a>
+    <div class="dropdown">
+      <a href="#">콜로퀴움</a>
+      <a href="#">세미나</a>
+      <a href="#">학술제</a>
+      <a href="#">행사 사진</a>
+    </div>
+  </div>
+  <div class="gnb-item">
+    <a class="gnb-link" href="#">게시판</a>
+    <div class="dropdown">
+      <a href="#">공지사항</a>
+      <a href="#">학사공지</a>
+      <a href="#">취업정보</a>
+      <a href="#">자유게시판</a>
+    </div>
+  </div>
+  <div class="gnb-item">
+    <a class="gnb-link" href="#">학생활동</a>
+    <div class="dropdown">
+      <a href="#">학생회</a>
+      <a href="#">동아리</a>
+      <a href="#">졸업생 현황</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SEARCH BAR
+═══════════════════════════════════════════════════ -->
+<div class="search-bar">
+  <span style="font-weight:bold;color:#003087;">🔍 통합검색</span>
+  <input type="text" id="search-input" placeholder="검색어 입력 후 Enter" />
+  <button onclick="doSearch()">검색</button>
+  &nbsp;
+  <span style="color:#888;">|</span>
+  &nbsp;
+  <a href="#" style="font-size:11px;">공지사항</a>
+  <a href="#faculty-section" style="font-size:11px;margin-left:8px;">교수진</a>
+  <a href="#" style="font-size:11px;margin-left:8px;">연구실</a>
+  <a href="#" style="font-size:11px;margin-left:8px;">학사일정</a>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MAIN BODY (3 COLUMNS)
+═══════════════════════════════════════════════════ -->
+<div id="main-body">
+
+  <!-- ── LEFT SIDEBAR ──────────────────────────────── -->
+  <div id="sidebar-left">
+
+    <div class="side-menu-title">◈ 빠른메뉴</div>
+
+    <div class="side-menu-group">
+      <div class="side-menu-group-title">학과소개</div>
+      <ul>
+        <li><a href="#">학과장 인사말</a></li>
+        <li><a href="#">학과 연혁</a></li>
+        <li><a href="#">오시는길</a></li>
+      </ul>
+    </div>
+
+    <div class="side-menu-group">
+      <div class="side-menu-group-title">교육안내</div>
+      <ul>
+        <li><a href="#">학부과정</a></li>
+        <li><a href="#">대학원과정</a></li>
+        <li><a href="#">장학금안내</a></li>
+      </ul>
+    </div>
+
+    <div class="side-menu-group">
+      <div class="side-menu-group-title">구성원</div>
+      <ul>
+        <li><a href="#faculty-section">교수진 (20명)</a></li>
+        <li><a href="#">명예교수</a></li>
+        <li><a href="#">행정직원</a></li>
+      </ul>
+    </div>
+
+    <div class="side-menu-group">
+      <div class="side-menu-group-title">게시판</div>
+      <ul>
+        <li><a href="#">공지사항</a></li>
+        <li><a href="#">학사공지</a></li>
+        <li><a href="#">취업정보</a></li>
+      </ul>
+    </div>
+
+    <div class="side-menu-group">
+      <div class="side-menu-group-title">관련사이트</div>
+      <ul>
+        <li><a href="https://www.pusan.ac.kr" target="_blank">PNU 홈페이지</a></li>
+        <li><a href="#" target="_blank">PLATO</a></li>
+        <li><a href="#" target="_blank">도서관</a></li>
+        <li><a href="#" target="_blank">학생지원시스템</a></li>
+      </ul>
+    </div>
+
+    <!-- 날짜/시계 위젯 -->
+    <div class="side-box">
+      <div class="side-box-title">▣ 현재시각</div>
+      <div class="date-display" id="live-date">로딩중...</div>
+      <div class="time-display" id="live-clock">--:--:--</div>
+    </div>
+
+  </div><!-- /sidebar-left -->
+
+  <!-- ── CENTER CONTENT ─────────────────────────────── -->
+  <div id="content">
+
+    <!-- 공지사항 / 학사공지 / 취업정보 탭 -->
+    <div class="sec-title-bar">
+      <h2>소식 및 공지사항</h2>
+      <a href="#" class="sec-more">+ 더보기</a>
+    </div>
+
+    <div style="padding:6px 10px 0;">
+      <div class="tab-wrap">
+        <div class="old-tab active" data-tabgroup="news" data-tabid="notice"
+             onclick="switchTab('news','notice')">공지사항</div>
+        <div class="old-tab" data-tabgroup="news" data-tabid="school"
+             onclick="switchTab('news','school')">학사공지</div>
+        <div class="old-tab" data-tabgroup="news" data-tabid="job"
+             onclick="switchTab('news','job')">취업정보</div>
+      </div>
+    </div>
+
+    <!-- 공지사항 -->
+    <div class="tab-content active" data-tabcontent="news" data-contentid="notice">
+      <table class="notice-table" style="margin:0;">
+        <thead>
+          <tr>
+            <th style="width:32px;">번호</th>
+            <th style="width:50px;">구분</th>
+            <th>제목</th>
+            <th style="width:70px;">날짜</th>
+            <th style="width:38px;">조회</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in news %}
+          {% if item.category == '공지사항' %}
+          <tr>
+            <td class="num">{{ item.id }}</td>
+            <td class="cat"><span class="cat-tag notice">공지</span></td>
+            <td>
+              <a href="#">{{ item.title }}</a>
+              {% if loop.index <= 2 %}<span class="new-badge blink">NEW</span>{% endif %}
+            </td>
+            <td class="date">{{ item.date }}</td>
+            <td class="views">{{ item.views }}</td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 학사공지 -->
+    <div class="tab-content" data-tabcontent="news" data-contentid="school">
+      <table class="notice-table" style="margin:0;">
+        <thead>
+          <tr>
+            <th style="width:32px;">번호</th>
+            <th style="width:50px;">구분</th>
+            <th>제목</th>
+            <th style="width:70px;">날짜</th>
+            <th style="width:38px;">조회</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in news %}
+          {% if item.category == '학사공지' %}
+          <tr>
+            <td class="num">{{ item.id }}</td>
+            <td class="cat"><span class="cat-tag school">학사</span></td>
+            <td><a href="#">{{ item.title }}</a></td>
+            <td class="date">{{ item.date }}</td>
+            <td class="views">{{ item.views }}</td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 취업정보 -->
+    <div class="tab-content" data-tabcontent="news" data-contentid="job">
+      <table class="notice-table" style="margin:0;">
+        <thead>
+          <tr>
+            <th style="width:32px;">번호</th>
+            <th style="width:50px;">구분</th>
+            <th>제목</th>
+            <th style="width:70px;">날짜</th>
+            <th style="width:38px;">조회</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in news %}
+          {% if item.category == '취업정보' %}
+          <tr>
+            <td class="num">{{ item.id }}</td>
+            <td class="cat"><span class="cat-tag job">취업</span></td>
+            <td><a href="#">{{ item.title }}</a></td>
+            <td class="date">{{ item.date }}</td>
+            <td class="views">{{ item.views }}</td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sec-divider"></div>
+
+    <!-- 교수진 테이블 -->
+    <div id="faculty-section">
+      <div class="sec-title-bar" style="margin-top:4px;">
+        <h2>교수진 현황</h2>
+        <span style="font-size:10px;color:#666;">총 {{ faculty|length }}명</span>
+      </div>
+
+      <div style="padding:6px 10px 0;">
+        <div class="tab-wrap">
+          <div class="old-tab active" data-tabgroup="fac" data-tabid="all"
+               onclick="switchTab('fac','all')">전체 ({{ faculty|length }}명)</div>
+          <div class="old-tab" data-tabgroup="fac" data-tabid="solid"
+               onclick="switchTab('fac','solid')">고체물리</div>
+          <div class="old-tab" data-tabgroup="fac" data-tabid="particle"
+               onclick="switchTab('fac','particle')">입자/핵물리</div>
+          <div class="old-tab" data-tabgroup="fac" data-tabid="optics"
+               onclick="switchTab('fac','optics')">광학/이론</div>
+        </div>
+      </div>
+
+      <!-- 전체 -->
+      <div class="tab-content active" data-tabcontent="fac" data-contentid="all">
+        <table class="faculty-table">
+          <thead>
+            <tr>
+              <th style="width:24px;">No</th>
+              <th style="width:52px;">성명</th>
+              <th style="width:90px;">영문명</th>
+              <th style="width:46px;">직위</th>
+              <th style="width:90px;">전공분야</th>
+              <th>연구실</th>
+              <th style="width:110px;">이메일</th>
+              <th style="width:64px;">연락처</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for prof in faculty %}
+            <tr onclick="toggleProf('{{ loop.index }}')" style="cursor:pointer;">
+              <td class="num" style="text-align:center;">{{ loop.index }}</td>
+              <td class="name-col">{{ prof.name }}</td>
+              <td class="en-col">{{ prof.en_name }}</td>
+              <td class="rank-col">
+                {% if prof.rank == '교수' %}
+                  <span class="rank-badge prof">교수</span>
+                {% elif prof.rank == '부교수' %}
+                  <span class="rank-badge assoc">부교수</span>
+                {% else %}
+                  <span class="rank-badge assist">조교수</span>
+                {% endif %}
+              </td>
+              <td class="spec-col">{{ prof.specialty }}</td>
+              <td class="lab-col">{{ prof.lab }}</td>
+              <td class="email-col"><a href="mailto:{{ prof.email }}">{{ prof.email }}</a></td>
+              <td style="font-size:10px;color:#666;white-space:nowrap;">{{ prof.phone }}</td>
+            </tr>
+            <tr id="prof-detail-{{ loop.index }}" style="display:none;background:#f0f5ff;">
+              <td colspan="8" style="padding:8px 15px;font-size:11px;border:1px solid #b8cce0;">
+                <strong>📍 연구실 위치:</strong> {{ prof.office }}&nbsp;&nbsp;
+                <strong>📧 이메일:</strong> <a href="mailto:{{ prof.email }}">{{ prof.email }}</a>&nbsp;&nbsp;
+                <strong>☎ 연락처:</strong> {{ prof.phone }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div style="padding:5px 10px;font-size:10px;color:#888;background:#f8f8f8;border-top:1px solid #ddd;">
+          ※ 행을 클릭하면 상세 정보를 확인할 수 있습니다.
+        </div>
+      </div>
+
+      <!-- 고체물리 -->
+      <div class="tab-content" data-tabcontent="fac" data-contentid="solid">
+        <table class="faculty-table">
+          <thead>
+            <tr>
+              <th style="width:24px;">No</th>
+              <th style="width:52px;">성명</th>
+              <th style="width:90px;">영문명</th>
+              <th style="width:46px;">직위</th>
+              <th>연구실</th>
+              <th style="width:110px;">이메일</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for prof in faculty %}{% if '고체' in prof.specialty %}
+            <tr>
+              <td class="num" style="text-align:center;">{{ loop.index }}</td>
+              <td class="name-col">{{ prof.name }}</td>
+              <td class="en-col">{{ prof.en_name }}</td>
+              <td class="rank-col">
+                {% if prof.rank == '교수' %}<span class="rank-badge prof">교수</span>
+                {% elif prof.rank == '부교수' %}<span class="rank-badge assoc">부교수</span>
+                {% else %}<span class="rank-badge assist">조교수</span>{% endif %}
+              </td>
+              <td class="lab-col">{{ prof.lab }}</td>
+              <td class="email-col"><a href="mailto:{{ prof.email }}">{{ prof.email }}</a></td>
+            </tr>
+            {% endif %}{% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 입자/핵물리 -->
+      <div class="tab-content" data-tabcontent="fac" data-contentid="particle">
+        <table class="faculty-table">
+          <thead>
+            <tr>
+              <th style="width:24px;">No</th>
+              <th style="width:52px;">성명</th>
+              <th style="width:90px;">영문명</th>
+              <th style="width:46px;">직위</th>
+              <th>연구실</th>
+              <th style="width:110px;">이메일</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for prof in faculty %}
+            {% if '입자' in prof.specialty or '핵물리' in prof.specialty %}
+            <tr>
+              <td class="num" style="text-align:center;">{{ loop.index }}</td>
+              <td class="name-col">{{ prof.name }}</td>
+              <td class="en-col">{{ prof.en_name }}</td>
+              <td class="rank-col">
+                {% if prof.rank == '교수' %}<span class="rank-badge prof">교수</span>
+                {% elif prof.rank == '부교수' %}<span class="rank-badge assoc">부교수</span>
+                {% else %}<span class="rank-badge assist">조교수</span>{% endif %}
+              </td>
+              <td class="lab-col">{{ prof.lab }}</td>
+              <td class="email-col"><a href="mailto:{{ prof.email }}">{{ prof.email }}</a></td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 광학/이론 -->
+      <div class="tab-content" data-tabcontent="fac" data-contentid="optics">
+        <table class="faculty-table">
+          <thead>
+            <tr>
+              <th style="width:24px;">No</th>
+              <th style="width:52px;">성명</th>
+              <th style="width:90px;">영문명</th>
+              <th style="width:46px;">직위</th>
+              <th>연구실</th>
+              <th style="width:110px;">이메일</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for prof in faculty %}
+            {% if '광학' in prof.specialty or '이론' in prof.specialty or '통계' in prof.specialty or '천체' in prof.specialty %}
+            <tr>
+              <td class="num" style="text-align:center;">{{ loop.index }}</td>
+              <td class="name-col">{{ prof.name }}</td>
+              <td class="en-col">{{ prof.en_name }}</td>
+              <td class="rank-col">
+                {% if prof.rank == '교수' %}<span class="rank-badge prof">교수</span>
+                {% elif prof.rank == '부교수' %}<span class="rank-badge assoc">부교수</span>
+                {% else %}<span class="rank-badge assist">조교수</span>{% endif %}
+              </td>
+              <td class="lab-col">{{ prof.lab }}</td>
+              <td class="email-col"><a href="mailto:{{ prof.email }}">{{ prof.email }}</a></td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- /faculty-section -->
+
+    <div class="sec-divider"></div>
+
+    <!-- bkit 분석 위젯 -->
+    <div style="padding:8px 10px;background:#fffbe6;border-top:1px solid #e8d87a;">
+      <div style="font-size:11px;font-weight:bold;color:#666;margin-bottom:4px;">
+        ■ bkit 텍스트 분석기 (Bangla Text Processing Kit 활용)
+      </div>
+      <div style="display:flex;gap:5px;align-items:center;">
+        <input type="text" id="bkit-input" placeholder="분석할 텍스트 입력..."
+          style="border:1px inset #aaa;padding:2px 5px;font-size:11px;flex:1;font-family:inherit;" />
+        <button onclick="runBkitAnalysis()"
+          style="background:linear-gradient(180deg,#444,#222);color:#fff;border:1px outset #333;
+                 padding:2px 8px;font-size:11px;font-family:inherit;cursor:pointer;">분석</button>
+      </div>
+      <div id="bkit-result" style="font-size:11px;color:#555;margin-top:4px;min-height:14px;"></div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- ── RIGHT SIDEBAR ──────────────────────────────── -->
+  <div id="sidebar-right">
+
+    <!-- 통계 카운터 -->
+    <div class="r-box">
+      <div class="r-box-title">학과 현황</div>
+      <div class="r-box-body">
+        <div class="stat-counter">
+          <span class="stat-label-r">전임교수</span>
+          <span class="stat-value">{{ stats.professors }}</span>
+        </div>
+        <div class="stat-counter">
+          <span class="stat-label-r">재학생</span>
+          <span class="stat-value">{{ stats.students }}</span>
+        </div>
+        <div class="stat-counter">
+          <span class="stat-label-r">연구실</span>
+          <span class="stat-value">{{ stats.labs }}</span>
+        </div>
+        <div class="stat-counter">
+          <span class="stat-label-r">SCI논문</span>
+          <span class="stat-value">1175+</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 학과 행사 -->
+    <div class="r-box">
+      <div class="r-box-title">학과 행사</div>
+      <div class="r-box-body">
+        <ul class="event-list">
+          {% for event in events %}
+          <li>
+            <span class="event-date">{{ event.month }}/{{ event.day }} ({{ event.type }})</span>
+            <span class="event-title">{{ event.title[:22] }}{% if event.title|length > 22 %}...{% endif %}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <!-- 빠른 접속 버튼 -->
+    <div class="r-box">
+      <div class="r-box-title">빠른 접속</div>
+      <div class="r-box-body" style="padding:6px;">
+        <a href="#" class="quick-btn">PLATO 학사포털</a>
+        <a href="#" class="quick-btn">도서관 서비스</a>
+        <a href="#" class="quick-btn">장학금 안내</a>
+        <a href="#" class="quick-btn">학생지원시스템</a>
+        <a href="#" class="quick-btn">수강신청</a>
+        <a href="#" class="quick-btn">성적조회</a>
+      </div>
+    </div>
+
+    <!-- SNS -->
+    <div class="r-box">
+      <div class="r-box-title">SNS</div>
+      <div class="r-box-body" style="text-align:center;font-size:11px;">
+        <a href="#" style="display:block;padding:3px;border:1px solid #ccc;margin-bottom:3px;
+                           background:#3b5998;color:#fff;">페이스북</a>
+        <a href="#" style="display:block;padding:3px;border:1px solid #ccc;margin-bottom:3px;
+                           background:#ff0000;color:#fff;">유튜브</a>
+        <a href="#" style="display:block;padding:3px;border:1px solid #ccc;
+                           background:#c13584;color:#fff;">인스타그램</a>
+      </div>
+    </div>
+
+    <!-- 학과장 말씀 -->
+    <div class="r-box">
+      <div class="r-box-title">학과장 인사말</div>
+      <div class="r-box-body" style="font-size:11px;color:#444;line-height:1.7;">
+        물리학과에 오신 것을 환영합니다. 자연의 근본을 탐구하는 여정에 함께해 주셔서 감사합니다.<br/>
+        <a href="#" style="font-size:10px;">자세히 보기 &gt;&gt;</a>
+      </div>
+    </div>
+
+  </div><!-- /sidebar-right -->
+
+</div><!-- /main-body -->
+
+<!-- ═══════════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════════ -->
+<div id="footer">
+  <div class="footer-info">
+    <strong style="color:#fff;">부산대학교 물리학과</strong> &nbsp;|&nbsp;
+    주소: 부산광역시 금정구 부산대학로63번길 2 제1물리관 102호 (우 46241) &nbsp;|&nbsp;
+    Tel: 051-510-1769 &nbsp;|&nbsp;
+    Fax: 051-513-7664 &nbsp;|&nbsp;
+    E-mail: <a href="mailto:physics@pusan.ac.kr">physics@pusan.ac.kr</a>
+  </div>
+  <div class="footer-info">
+    <a href="#">개인정보처리방침</a> &nbsp;|&nbsp;
+    <a href="#">이메일무단수집거부</a> &nbsp;|&nbsp;
+    <a href="https://www.pusan.ac.kr" target="_blank">부산대학교 홈페이지</a> &nbsp;|&nbsp;
+    <a href="#">사이트맵</a>
+  </div>
+  <div class="copyright">
+    Copyright &copy; 2026 Department of Physics, Pusan National University. All Rights Reserved.
+    &nbsp;|&nbsp; Powered by FastAPI &amp; bkit
+  </div>
+</div>
+
+</div><!-- /wrapper -->
+
+<script type="text/javascript" src="/static/js/main.js"></script>
+</body>
+</html>
