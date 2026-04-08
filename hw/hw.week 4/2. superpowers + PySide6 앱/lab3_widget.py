@@ -5,7 +5,8 @@ import os
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel,
-    QProgressBar, QGroupBox, QSpinBox, QTextEdit
+    QProgressBar, QGroupBox, QSpinBox, QTextEdit,
+    QComboBox, QDoubleSpinBox
 )
 from PySide6.QtCore import QThread, Signal
 
@@ -19,10 +20,12 @@ class TrainThread(QThread):
     finished_result = Signal(dict)
     error_occurred = Signal(str)
 
-    def __init__(self, epochs, n_samples):
+    def __init__(self, epochs, n_samples, reg_type='없음', reg_lambda=0.001):
         super().__init__()
         self.epochs = epochs
         self.n_samples = n_samples
+        self.reg_type = reg_type
+        self.reg_lambda = reg_lambda
 
     def run(self):
         try:
@@ -59,9 +62,21 @@ class TrainThread(QThread):
             for name, layers, dropout, color in configs:
                 self.log_message.emit(f"\n{name} 모델 학습 중...")
 
+                if "Good Fit" in name and self.reg_type != '없음':
+                    lam = self.reg_lambda
+                    reg_map = {
+                        'L1': keras.regularizers.l1(lam),
+                        'L2': keras.regularizers.l2(lam),
+                        'L1+L2': keras.regularizers.l1_l2(l1=lam, l2=lam),
+                    }
+                    regularizer = reg_map[self.reg_type]
+                else:
+                    regularizer = None
+
                 model = keras.Sequential()
                 for units in layers:
-                    model.add(keras.layers.Dense(units, activation='relu'))
+                    model.add(keras.layers.Dense(units, activation='relu',
+                                                 kernel_regularizer=regularizer))
                     if dropout > 0:
                         model.add(keras.layers.Dropout(dropout))
                 model.add(keras.layers.Dense(1, activation='linear'))
@@ -103,6 +118,8 @@ class TrainThread(QThread):
                 'y_test_clean': y_test_clean.flatten(),
                 'x_train': x.flatten(),
                 'y_train': y.flatten(),
+                'reg_type': self.reg_type,
+                'reg_lambda': self.reg_lambda,
             })
 
         except ImportError:
@@ -139,6 +156,21 @@ class Lab3Widget(QWidget):
         info = QLabel("비교 모델:\n• Underfit: [4]\n• Good Fit: [32,16]+Dropout\n• Overfit: [256,128,64,32]")
         info.setStyleSheet("color: #555; padding: 8px; background: #f0f0f0; border-radius: 4px;")
         s.addWidget(info)
+
+        s.addWidget(QLabel("Regularization (Good Fit):"))
+        self.reg_combo = QComboBox()
+        self.reg_combo.addItems(['없음', 'L1', 'L2', 'L1+L2'])
+        s.addWidget(self.reg_combo)
+
+        reg_row = QHBoxLayout()
+        reg_row.addWidget(QLabel("λ:"))
+        self.reg_spin = QDoubleSpinBox()
+        self.reg_spin.setRange(0.0001, 0.1)
+        self.reg_spin.setValue(0.001)
+        self.reg_spin.setSingleStep(0.001)
+        self.reg_spin.setDecimals(4)
+        reg_row.addWidget(self.reg_spin)
+        s.addLayout(reg_row)
 
         left.addWidget(settings)
 
@@ -185,7 +217,12 @@ class Lab3Widget(QWidget):
         self.progress.setValue(0)
         self.log_text.clear()
 
-        self.thread = TrainThread(self.epoch_spin.value(), self.sample_spin.value())
+        self.thread = TrainThread(
+            self.epoch_spin.value(),
+            self.sample_spin.value(),
+            reg_type=self.reg_combo.currentText(),
+            reg_lambda=self.reg_spin.value()
+        )
         self.thread.progress.connect(self.progress.setValue)
         self.thread.log_message.connect(lambda m: self.log_text.append(m))
         self.thread.finished_result.connect(self.on_done)
@@ -211,7 +248,10 @@ class Lab3Widget(QWidget):
             ax.scatter(r['x_train'], r['y_train'], s=10, alpha=0.3, c='gray', label='데이터')
             ax.plot(r['x_test'], r['y_test_clean'], 'k-', linewidth=1.5, label='실제 함수')
             ax.plot(r['x_test'], res['y_pred'], '--', color=res['color'], linewidth=2, label='NN 예측')
-            ax.set_title(res['name'], fontsize=11, color=res['color'])
+            title = res['name']
+            if 'Good Fit' in res['name'] and r.get('reg_type', '없음') != '없음':
+                title += f"\n({r['reg_type']} λ={r.get('reg_lambda', '')})"
+            ax.set_title(title, fontsize=11, color=res['color'])
             ax.legend(fontsize=7)
             ax.grid(True, alpha=0.3)
 

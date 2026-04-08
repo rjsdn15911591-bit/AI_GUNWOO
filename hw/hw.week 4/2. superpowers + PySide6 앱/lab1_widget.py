@@ -43,6 +43,9 @@ class TrainThread(QThread):
                 "x·sin(x)": lambda x: x * np.sin(x),
                 "극한 복잡도": lambda x: (np.sin(x) + 0.5 * np.sin(2 * x) +
                     0.3 * np.cos(3 * x) + 0.2 * np.sin(5 * x) + 0.1 * x * np.cos(x)),
+                "tanh(x)": lambda x: np.tanh(x),
+                "x³": lambda x: x**3 / 20,
+                "x²·sin(x)": lambda x: x**2 * np.sin(x) / 10,
             }
             y = funcs[self.func_name](x)
 
@@ -138,7 +141,10 @@ class Lab1Widget(QWidget):
 
         s_layout.addWidget(QLabel("함수 선택:"))
         self.func_combo = QComboBox()
-        self.func_combo.addItems(["sin(x)", "cos(x) + 0.5sin(2x)", "x·sin(x)", "극한 복잡도"])
+        self.func_combo.addItems([
+            "sin(x)", "cos(x) + 0.5sin(2x)", "x·sin(x)", "극한 복잡도",
+            "tanh(x)", "x³", "x²·sin(x)"
+        ])
         s_layout.addWidget(self.func_combo)
 
         s_layout.addWidget(QLabel("네트워크 크기:"))

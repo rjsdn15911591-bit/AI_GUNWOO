@@ -22,14 +22,14 @@ def pendulum_period(L, theta0, g=9.8):
     return T
 
 
-def rk4_pendulum(L, theta0, omega0=0, t_max=None, dt=0.001, g=9.8):
-    """RK4로 진자 운동 시뮬레이션"""
+def rk4_pendulum(L, theta0, omega0=0, t_max=None, dt=0.001, g=9.8, gamma=0.0):
+    """RK4로 진자 운동 시뮬레이션 (gamma: 감쇠 계수)"""
     if t_max is None:
         t_max = 4 * pendulum_period(L, theta0, g)
 
     def deriv(state):
         theta, omega = state
-        return np.array([omega, -(g / L) * np.sin(theta)])
+        return np.array([omega, -(g / L) * np.sin(theta) - gamma * omega])
 
     t_arr = [0]
     state = np.array([theta0, omega0])
@@ -56,9 +56,10 @@ class TrainThread(QThread):
     finished_result = Signal(dict)
     error_occurred = Signal(str)
 
-    def __init__(self, epochs):
+    def __init__(self, epochs, gamma=0.0):
         super().__init__()
         self.epochs = epochs
+        self.gamma = gamma
 
     def run(self):
         try:
@@ -135,7 +136,8 @@ class TrainThread(QThread):
             # RK4 시뮬레이션
             self.log_message.emit("RK4 시뮬레이션 실행 중...")
             sim_L, sim_theta = 1.0, np.radians(30)
-            t_sim, theta_sim, omega_sim = rk4_pendulum(sim_L, sim_theta)
+            t_sim, theta_sim, omega_sim = rk4_pendulum(sim_L, sim_theta, gamma=self.gamma)
+            _, theta_undamped, _ = rk4_pendulum(sim_L, sim_theta, gamma=0.0)
 
             self.progress.emit(100)
             self.log_message.emit("학습 및 시뮬레이션 완료!")
@@ -145,6 +147,8 @@ class TrainThread(QThread):
                 'test_angles': np.degrees(test_angles),
                 'history': history.history,
                 't_sim': t_sim, 'theta_sim': theta_sim, 'omega_sim': omega_sim,
+                'theta_undamped': theta_undamped,
+                'gamma': self.gamma,
             })
 
         except ImportError:
@@ -171,6 +175,14 @@ class Lab4Widget(QWidget):
         self.epoch_spin.setValue(1000)
         self.epoch_spin.setSingleStep(200)
         s.addWidget(self.epoch_spin)
+
+        s.addWidget(QLabel("감쇠 계수 γ:"))
+        self.gamma_spin = QDoubleSpinBox()
+        self.gamma_spin.setRange(0.0, 2.0)
+        self.gamma_spin.setValue(0.0)
+        self.gamma_spin.setSingleStep(0.1)
+        self.gamma_spin.setDecimals(2)
+        s.addWidget(self.gamma_spin)
 
         info = QLabel("테스트 조건:\n• L = 0.5m, 1.0m, 2.0m\n• 각도: 5° ~ 80°\n\n물리:\n• T = 2π√(L/g)\n• 큰 각도: 타원적분 보정")
         info.setStyleSheet("color: #555; padding: 8px; background: #f0f0f0; border-radius: 4px;")
@@ -221,7 +233,7 @@ class Lab4Widget(QWidget):
         self.progress.setValue(0)
         self.log_text.clear()
 
-        self.thread = TrainThread(self.epoch_spin.value())
+        self.thread = TrainThread(self.epoch_spin.value(), gamma=self.gamma_spin.value())
         self.thread.progress.connect(self.progress.setValue)
         self.thread.log_message.connect(lambda m: self.log_text.append(m))
         self.thread.finished_result.connect(self.on_done)
@@ -267,8 +279,16 @@ class Lab4Widget(QWidget):
 
         # RK4 시뮬레이션 - 시간에 따른 각도
         ax3 = self.figure.add_subplot(223)
-        ax3.plot(r['t_sim'], np.degrees(r['theta_sim']), color='#9b59b6', linewidth=1)
-        ax3.set_title("진자 운동 시뮬레이션 (L=1m, θ0=30°)", fontsize=11)
+        if r.get('gamma', 0) > 0:
+            ax3.plot(r['t_sim'], np.degrees(r['theta_undamped']),
+                     color='#9b59b6', linewidth=1, linestyle='--', label='비감쇠 (γ=0)', alpha=0.6)
+            ax3.plot(r['t_sim'], np.degrees(r['theta_sim']),
+                     color='#e74c3c', linewidth=1.5, label=f"감쇠 (γ={r['gamma']})")
+            ax3.legend(fontsize=8)
+            ax3.set_title(f"감쇠 진자 시뮬레이션 (γ={r['gamma']})", fontsize=11)
+        else:
+            ax3.plot(r['t_sim'], np.degrees(r['theta_sim']), color='#9b59b6', linewidth=1)
+            ax3.set_title("진자 운동 시뮬레이션 (L=1m, θ0=30°)", fontsize=11)
         ax3.set_xlabel("시간 (s)")
         ax3.set_ylabel("각도 (°)")
         ax3.grid(True, alpha=0.3)

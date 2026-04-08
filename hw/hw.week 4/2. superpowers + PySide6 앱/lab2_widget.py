@@ -5,7 +5,8 @@ import os
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel,
-    QProgressBar, QGroupBox, QSpinBox, QTextEdit
+    QProgressBar, QGroupBox, QSpinBox, QTextEdit,
+    QCheckBox, QDoubleSpinBox
 )
 from PySide6.QtCore import QThread, Signal
 
@@ -19,10 +20,12 @@ class TrainThread(QThread):
     finished_result = Signal(dict)
     error_occurred = Signal(str)
 
-    def __init__(self, epochs, n_samples):
+    def __init__(self, epochs, n_samples, use_drag=False, drag_k=0.1):
         super().__init__()
         self.epochs = epochs
         self.n_samples = n_samples
+        self.use_drag = use_drag
+        self.drag_k = drag_k
 
     def run(self):
         try:
@@ -39,13 +42,32 @@ class TrainThread(QThread):
             t_flight = 2 * v0 * np.sin(theta) / g
             t = np.random.uniform(0, 1, self.n_samples) * t_flight
 
-            x = v0 * np.cos(theta) * t + np.random.normal(0, 0.5, self.n_samples)
-            y = v0 * np.sin(theta) * t - 0.5 * g * t ** 2 + np.random.normal(0, 0.5, self.n_samples)
-            y = np.maximum(y, 0)
+            if self.use_drag:
+                self.log_message.emit(f"공기 저항 RK4 계산 중 (k={self.drag_k})...")
+                def rk4_drag(v0_, th_, t_end, k, dt=0.01):
+                    state = np.array([0.0, 0.0, v0_*np.cos(th_), v0_*np.sin(th_)])
+                    t_cur = 0.0
+                    while t_cur < t_end:
+                        def deriv(s):
+                            return np.array([s[2], s[3], -k*s[2], -g - k*s[3]])
+                        k1 = deriv(state)
+                        k2 = deriv(state + 0.5*dt*k1)
+                        k3 = deriv(state + 0.5*dt*k2)
+                        k4 = deriv(state + dt*k3)
+                        state = state + (dt/6)*(k1 + 2*k2 + 2*k3 + k4)
+                        t_cur += dt
+                    return state[0], max(state[1], 0)
+                xy = np.array([rk4_drag(v0[i], theta[i], t[i], self.drag_k) for i in range(self.n_samples)])
+                x_data = xy[:, 0] + np.random.normal(0, 0.5, self.n_samples)
+                y_data = np.maximum(xy[:, 1] + np.random.normal(0, 0.5, self.n_samples), 0)
+            else:
+                x_data = v0 * np.cos(theta) * t + np.random.normal(0, 0.5, self.n_samples)
+                y_data = v0 * np.sin(theta) * t - 0.5 * g * t**2 + np.random.normal(0, 0.5, self.n_samples)
+                y_data = np.maximum(y_data, 0)
 
             # 입력/출력
             X = np.column_stack([v0, theta, t])
-            Y = np.column_stack([x, y])
+            Y = np.column_stack([x_data, y_data])
 
             # 정규화
             X_mean, X_std = X.mean(axis=0), X.std(axis=0)
@@ -117,6 +139,8 @@ class TrainThread(QThread):
             self.finished_result.emit({
                 'trajectories': trajectories,
                 'history': history.history,
+                'use_drag': self.use_drag,
+                'drag_k': self.drag_k,
             })
 
         except ImportError:
@@ -155,6 +179,20 @@ class Lab2Widget(QWidget):
         info = QLabel("테스트 조건:\n• v0=20m/s, θ=30°\n• v0=30m/s, θ=45°\n• v0=40m/s, θ=60°")
         info.setStyleSheet("color: #555; padding: 8px; background: #f0f0f0; border-radius: 4px;")
         s.addWidget(info)
+
+        self.drag_check = QCheckBox("공기 저항 포함")
+        s.addWidget(self.drag_check)
+
+        drag_row = QHBoxLayout()
+        drag_row.addWidget(QLabel("항력 계수 k:"))
+        self.drag_spin = QDoubleSpinBox()
+        self.drag_spin.setRange(0.01, 1.0)
+        self.drag_spin.setValue(0.1)
+        self.drag_spin.setSingleStep(0.05)
+        self.drag_spin.setEnabled(False)
+        drag_row.addWidget(self.drag_spin)
+        s.addLayout(drag_row)
+        self.drag_check.toggled.connect(self.drag_spin.setEnabled)
 
         left.addWidget(settings)
 
@@ -202,7 +240,12 @@ class Lab2Widget(QWidget):
         self.progress.setValue(0)
         self.log_text.clear()
 
-        self.thread = TrainThread(self.epoch_spin.value(), self.sample_spin.value())
+        self.thread = TrainThread(
+            self.epoch_spin.value(),
+            self.sample_spin.value(),
+            use_drag=self.drag_check.isChecked(),
+            drag_k=self.drag_spin.value()
+        )
         self.thread.progress.connect(self.progress.setValue)
         self.thread.log_message.connect(lambda m: self.log_text.append(m))
         self.thread.finished_result.connect(self.on_done)
@@ -228,7 +271,8 @@ class Lab2Widget(QWidget):
         for i, traj in enumerate(r['trajectories']):
             ax1.plot(traj['x_true'], traj['y_true'], '-', color=colors[i], linewidth=2, label=f"{traj['label']} (실제)")
             ax1.plot(traj['x_pred'], traj['y_pred'], '--', color=colors[i], linewidth=2, alpha=0.7, label=f"{traj['label']} (예측)")
-        ax1.set_title("포물선 운동 궤적", fontsize=13)
+        drag_label = f" (공기저항 k={r['drag_k']})" if r.get('use_drag') else ""
+        ax1.set_title(f"포물선 운동 궤적{drag_label}", fontsize=13)
         ax1.set_xlabel("수평 거리 (m)")
         ax1.set_ylabel("수직 높이 (m)")
         ax1.legend(fontsize=8)
