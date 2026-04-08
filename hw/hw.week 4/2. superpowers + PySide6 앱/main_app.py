@@ -39,6 +39,10 @@ from lab1_widget import Lab1Widget
 from lab2_widget import Lab2Widget
 from lab3_widget import Lab3Widget
 from lab4_widget import Lab4Widget
+from lab5_widget import Lab5Widget
+from lab6_widget import Lab6Widget
+from lab7_widget import Lab7Widget
+from lab8_widget import Lab8Widget
 
 
 class MainWindow(QMainWindow):
@@ -74,11 +78,19 @@ class MainWindow(QMainWindow):
         self.lab2 = Lab2Widget()
         self.lab3 = Lab3Widget()
         self.lab4 = Lab4Widget()
+        self.lab5 = Lab5Widget()
+        self.lab6 = Lab6Widget()
+        self.lab7 = Lab7Widget()
+        self.lab8 = Lab8Widget()
 
         self.tabs.addTab(self.lab1, "Lab 1: 1D 함수 근사")
         self.tabs.addTab(self.lab2, "Lab 2: 포물선 운동")
         self.tabs.addTab(self.lab3, "Lab 3: 과적합/과소적합")
         self.tabs.addTab(self.lab4, "Lab 4: 진자 주기")
+        self.tabs.addTab(self.lab5, "Lab 5: 스프링-질량")
+        self.tabs.addTab(self.lab6, "Lab 6: Ising Model")
+        self.tabs.addTab(self.lab7, "Lab 7: 양자 진동자")
+        self.tabs.addTab(self.lab8, "Lab 8: Kepler 궤도")
 
         layout.addWidget(self.tabs)
 
