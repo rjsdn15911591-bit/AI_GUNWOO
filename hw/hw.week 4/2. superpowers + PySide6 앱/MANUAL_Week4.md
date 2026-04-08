@@ -54,8 +54,6 @@ python main_app.py
 ├── lab6_widget.py           # Lab 6: 2D Ising Model 상전이 예측
 ├── lab7_widget.py           # Lab 7: 양자 조화 진동자 에너지 준위 예측
 ├── lab8_widget.py           # Lab 8: Kepler 궤도 예측
-├── PRD_Week4.md             # Product Requirements Document
-├── TRD_Week4.md             # Technical Requirements Document
 ├── outputs/                 # 그래프 PNG 자동 저장 폴더
 └── MANUAL_Week4.md          # 이 파일
 ```
