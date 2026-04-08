@@ -2,6 +2,8 @@
 
 import numpy as np
 import os
+import matplotlib
+matplotlib.rcParams['axes.unicode_minus'] = False
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel,
