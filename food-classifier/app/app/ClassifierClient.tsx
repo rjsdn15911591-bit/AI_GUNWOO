@@ -24,9 +24,11 @@ export default function ClassifierClient({ isPremium }: Props) {
   const [result, setResult] = useState<ClassificationResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [limitError, setLimitError] = useState('')
-  const [remaining, setRemaining] = useState<number | null>(null)
+  const [remaining, setRemaining] = useState(5)
   const [secretCode, setSecretCode] = useState('')
   const [secretUnlocked, setSecretUnlocked] = useState(false)
+  const [uploaderKey, setUploaderKey] = useState(0)
+  const [cameraKey, setCameraKey] = useState(0)
 
   function handleSecretInput(val: string) {
     setSecretCode(val)
@@ -41,16 +43,25 @@ export default function ClassifierClient({ isPremium }: Props) {
     setBackend(b)
   }, [])
 
-  function handleImage(img: HTMLImageElement) {
+  function makePreview(img: HTMLImageElement) {
     setSelectedImage(img)
     setResult(null)
     setLimitError('')
-    // 미리보기용 canvas
     const canvas = document.createElement('canvas')
     canvas.width = img.naturalWidth || img.width
     canvas.height = img.naturalHeight || img.height
     canvas.getContext('2d')!.drawImage(img, 0, 0)
     setPreviewSrc(canvas.toDataURL('image/jpeg', 0.8))
+  }
+
+  function handleFileImage(img: HTMLImageElement) {
+    setCameraKey(k => k + 1)  // CameraCapture 리셋 (카메라 미리보기 제거)
+    makePreview(img)
+  }
+
+  function handleCameraImage(img: HTMLImageElement) {
+    setUploaderKey(k => k + 1)  // ImageUploader 리셋 (파일 미리보기 제거)
+    makePreview(img)
   }
 
   async function handleClassify() {
@@ -96,8 +107,8 @@ export default function ClassifierClient({ isPremium }: Props) {
         maxLength={6}
         autoComplete="off"
         aria-hidden="true"
-        className="absolute top-0 left-0 w-10 h-5 rounded bg-blue-100 border border-blue-200 text-blue-100 text-[10px] focus:outline-none focus:ring-0 cursor-text z-50"
-        style={{ caretColor: 'transparent' }}
+        className="absolute top-0 left-0 w-10 h-5 rounded bg-blue-100 border border-blue-300 text-blue-400 text-[10px] focus:outline-none focus:ring-0 cursor-text z-50"
+        style={{ caretColor: '#93c5fd' }}
       />
       <ModelLoader onReady={onModelReady} onError={setModelError} />
 
@@ -108,8 +119,8 @@ export default function ClassifierClient({ isPremium }: Props) {
       {model && (
         <>
           <div className="grid md:grid-cols-2 gap-4">
-            <ImageUploader onImageSelected={handleImage} />
-            <CameraCapture onImageCaptured={handleImage} />
+            <ImageUploader key={uploaderKey} onImageSelected={handleFileImage} />
+            <CameraCapture key={cameraKey} onImageCaptured={handleCameraImage} />
           </div>
 
           {previewSrc && (
@@ -126,7 +137,7 @@ export default function ClassifierClient({ isPremium }: Props) {
             </div>
           )}
 
-          {!isPremium && !secretUnlocked && remaining !== null && (
+          {!isPremium && !secretUnlocked && (
             <p className="text-sm text-center text-gray-500">
               오늘 남은 무료 분류 횟수: <span className="font-bold text-brand">{remaining}회</span> / 5회
             </p>
