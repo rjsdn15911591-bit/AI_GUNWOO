@@ -17,11 +17,24 @@ export async function GET(req: Request) {
     accessToken: process.env.POLAR_ACCESS_TOKEN!,
   })
 
-  const checkout = await polar.checkouts.create({
-    productId: process.env.POLAR_PRODUCT_ID!,
-    customerEmail: user.email ?? undefined,
-    successUrl: `${origin}/app`,
-  })
+  let checkoutUrl: string
 
-  return NextResponse.redirect(checkout.url)
+  try {
+    const checkout = await polar.checkouts.create({
+      productId: process.env.POLAR_PRODUCT_ID!,
+      customerEmail: user.email ?? undefined,
+      successUrl: `${origin}/app`,
+    })
+    checkoutUrl = checkout.url
+  } catch (err: unknown) {
+    // SDK v0.30.x 응답 파싱 버그 우회 — 실제 checkout은 성공했으므로 rawValue에서 URL 추출
+    const raw = (err as { rawValue?: { url?: string } })?.rawValue
+    if (raw?.url) {
+      checkoutUrl = raw.url
+    } else {
+      throw err
+    }
+  }
+
+  return NextResponse.redirect(checkoutUrl)
 }
