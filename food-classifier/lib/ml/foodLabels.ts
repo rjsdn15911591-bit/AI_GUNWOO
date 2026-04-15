@@ -130,7 +130,7 @@ export const KOREAN_MAP: Record<string, string> = {
   granola: '그래놀라', oatmeal: '오트밀', toast: '토스트',
   'french toast': '프렌치토스트', kebab: '케밥', gyro: '지로',
   falafel: '팔라펠', hummus: '후무스', guacamole: '과카몰리',
-  nachos: '나초', 'green curry': '그린카레',
+  'green curry': '그린카레',
 }
 
 export function toKorean(label: string): string {
