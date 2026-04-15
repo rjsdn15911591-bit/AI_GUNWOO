@@ -26,10 +26,10 @@ ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.classifications ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "users_own_data" ON public.users
-  FOR ALL USING (id = auth.uid());
+  FOR ALL USING (id = auth.uid()) WITH CHECK (id = auth.uid());
 
 CREATE POLICY "classifications_own_data" ON public.classifications
-  FOR ALL USING (user_id = auth.uid());
+  FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
 
 -- 신규 유저 자동 생성 트리거
 CREATE OR REPLACE FUNCTION public.handle_new_user()
