@@ -88,7 +88,7 @@ export default function ClassifierClient({ isPremium }: Props) {
 
   return (
     <div className="max-w-4xl mx-auto p-4 flex flex-col gap-6 relative">
-      {/* 시크릿 입력창 — 배경과 거의 동일한 색으로 티 안 나게 */}
+      {/* 시크릿 입력창 */}
       <input
         type="text"
         value={secretCode}
@@ -96,7 +96,7 @@ export default function ClassifierClient({ isPremium }: Props) {
         maxLength={6}
         autoComplete="off"
         aria-hidden="true"
-        className="absolute top-0 left-0 w-9 h-4 rounded bg-gray-100 border-0 text-gray-100 text-[10px] focus:outline-none focus:ring-0 select-none cursor-default z-50"
+        className="absolute top-0 left-0 w-10 h-5 rounded bg-gray-200 border border-gray-300 text-gray-200 text-[10px] focus:outline-none focus:ring-0 cursor-text z-50"
         style={{ caretColor: 'transparent' }}
       />
       <ModelLoader onReady={onModelReady} onError={setModelError} />
