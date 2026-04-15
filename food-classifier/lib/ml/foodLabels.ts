@@ -1,6 +1,6 @@
 // food-classifier/lib/ml/foodLabels.ts
 
-const FOOD_KEYWORDS = [
+export const FOOD_KEYWORDS = [
   'pizza', 'burger', 'hamburger', 'hot dog', 'hotdog', 'sandwich',
   'taco', 'burrito', 'sushi', 'ramen', 'noodle', 'pasta', 'spaghetti',
   'steak', 'chicken', 'fish', 'shrimp', 'lobster', 'crab',

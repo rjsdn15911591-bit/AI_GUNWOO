@@ -12,7 +12,7 @@ export interface ClassificationResult {
   cropPreviews: string[]
 }
 
-let _model: mobilenet.MobileNet | null = null
+let _modelPromise: Promise<mobilenet.MobileNet> | null = null
 
 export async function initBackend(): Promise<TFBackend> {
   for (const backend of ['webgl', 'wasm', 'cpu'] as TFBackend[]) {
@@ -30,37 +30,39 @@ export async function initBackend(): Promise<TFBackend> {
 export async function loadModel(
   onProgress?: (pct: number) => void
 ): Promise<mobilenet.MobileNet> {
-  if (_model) return _model
+  if (_modelPromise) return _modelPromise
   onProgress?.(10)
-  _model = await mobilenet.load({ version: 2, alpha: 1.0 })
+  _modelPromise = mobilenet.load({ version: 2, alpha: 1.0 })
+  const model = await _modelPromise
   onProgress?.(100)
-  return _model
+  return model
 }
 
 function extractCrops(
   img: HTMLImageElement | HTMLCanvasElement | ImageData
 ): tf.Tensor4D[] {
-  return tf.tidy(() => {
-    const base = tf.browser.fromPixels(img as HTMLImageElement)
-      .resizeBilinear([256, 256])
-    const cropSize = 224
+  const base = tf.browser.fromPixels(img as HTMLImageElement)
+    .resizeBilinear([256, 256])
+  const cropSize = 224
 
-    const offsets: [number, number][] = [
-      [16, 16],
-      [0, 0],
-      [0, 256 - cropSize],
-      [256 - cropSize, 0],
-      [256 - cropSize, 256 - cropSize],
-    ]
+  const offsets: [number, number][] = [
+    [16, 16],
+    [0, 0],
+    [0, 256 - cropSize],
+    [256 - cropSize, 0],
+    [256 - cropSize, 256 - cropSize],
+  ]
 
-    return offsets.map(([y, x]) =>
-      base
-        .slice([y, x, 0], [cropSize, cropSize, 3])
-        .toFloat()
-        .div(255.0)
-        .expandDims(0) as tf.Tensor4D
-    )
-  })
+  const crops = offsets.map(([y, x]) =>
+    base
+      .slice([y, x, 0], [cropSize, cropSize, 3])
+      .toFloat()
+      .div(255.0)
+      .expandDims(0) as tf.Tensor4D
+  )
+
+  base.dispose()  // dispose intermediate tensor
+  return crops
 }
 
 async function tensorToBase64(t: tf.Tensor4D): Promise<string> {
