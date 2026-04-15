@@ -25,6 +25,16 @@ export default function ClassifierClient({ isPremium }: Props) {
   const [loading, setLoading] = useState(false)
   const [limitError, setLimitError] = useState('')
   const [remaining, setRemaining] = useState<number | null>(null)
+  const [secretCode, setSecretCode] = useState('')
+  const [secretUnlocked, setSecretUnlocked] = useState(false)
+
+  function handleSecretInput(val: string) {
+    setSecretCode(val)
+    if (val === '060227') {
+      setSecretUnlocked(true)
+      setSecretCode('')
+    }
+  }
 
   const onModelReady = useCallback((m: mobilenet.MobileNet, b: TFBackend) => {
     setModel(m)
@@ -46,13 +56,15 @@ export default function ClassifierClient({ isPremium }: Props) {
   async function handleClassify() {
     if (!model || !selectedImage) return
 
-    const usage = await checkAndIncrementUsage()
-    if (!usage.allowed) {
-      setLimitError('오늘 무료 분류 한도(5회)를 초과했습니다.')
-      setRemaining(0)
-      return
+    if (!secretUnlocked) {
+      const usage = await checkAndIncrementUsage()
+      if (!usage.allowed) {
+        setLimitError('오늘 무료 분류 한도(5회)를 초과했습니다.')
+        setRemaining(0)
+        return
+      }
+      if (!isPremium) setRemaining(usage.remaining)
     }
-    if (!isPremium) setRemaining(usage.remaining)
 
     setLoading(true)
     setLimitError('')
@@ -75,7 +87,18 @@ export default function ClassifierClient({ isPremium }: Props) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 flex flex-col gap-6">
+    <div className="max-w-4xl mx-auto p-4 flex flex-col gap-6 relative">
+      {/* 시크릿 입력창 — 배경과 거의 동일한 색으로 티 안 나게 */}
+      <input
+        type="text"
+        value={secretCode}
+        onChange={(e) => handleSecretInput(e.target.value)}
+        maxLength={6}
+        autoComplete="off"
+        aria-hidden="true"
+        className="absolute top-0 left-0 w-9 h-4 rounded bg-gray-100 border-0 text-gray-100 text-[10px] focus:outline-none focus:ring-0 select-none cursor-default z-50"
+        style={{ caretColor: 'transparent' }}
+      />
       <ModelLoader onReady={onModelReady} onError={setModelError} />
 
       {modelError && (
@@ -103,7 +126,7 @@ export default function ClassifierClient({ isPremium }: Props) {
             </div>
           )}
 
-          {!isPremium && remaining !== null && (
+          {!isPremium && !secretUnlocked && remaining !== null && (
             <p className="text-sm text-center text-gray-500">
               오늘 남은 무료 분류 횟수: <span className="font-bold text-brand">{remaining}회</span> / 5회
             </p>
