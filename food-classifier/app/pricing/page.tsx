@@ -36,7 +36,7 @@ export default function PricingPage() {
             ))}
           </ul>
           <a
-            href={`https://polar.sh/checkout/${process.env.NEXT_PUBLIC_POLAR_PRODUCT_ID}`}
+            href="/api/polar/checkout"
             className="block text-center py-2.5 bg-brand text-white rounded-full hover:bg-brand-dark font-semibold"
           >
             업그레이드 →
