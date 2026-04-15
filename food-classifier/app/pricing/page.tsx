@@ -1,7 +1,29 @@
+'use client'
 // food-classifier/app/pricing/page.tsx
+
+import { useState } from 'react'
 import Link from 'next/link'
 
 export default function PricingPage() {
+  const [loading, setLoading] = useState(false)
+
+  async function handleUpgrade() {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/polar/checkout')
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        alert('결제 페이지 생성에 실패했습니다. 다시 시도해주세요.')
+      }
+    } catch {
+      alert('오류가 발생했습니다. 다시 시도해주세요.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <main className="min-h-screen bg-white py-20 px-6">
       <h1 className="text-4xl font-bold text-center mb-4">요금제</h1>
@@ -13,10 +35,10 @@ export default function PricingPage() {
           <h2 className="text-xl font-bold mb-1">무료</h2>
           <p className="text-3xl font-extrabold mb-6">$0<span className="text-base font-normal text-gray-400">/월</span></p>
           <ul className="text-sm text-gray-600 space-y-2 mb-8">
-            {['일일 5회 분류', 'Top-1 결과', 'PWA 설치 + 오프라인'].map(f => (
+            {['일일 5회 분류', 'Top-5 결과'].map(f => (
               <li key={f} className="flex items-center gap-2">✅ {f}</li>
             ))}
-            {['Top-5 결과', 'Grad-CAM 히트맵', 'TTA 앙상블', '분류 히스토리'].map(f => (
+            {['Grad-CAM 히트맵', 'TTA 앙상블', '분류 히스토리'].map(f => (
               <li key={f} className="flex items-center gap-2 text-gray-300">❌ {f}</li>
             ))}
           </ul>
@@ -29,18 +51,19 @@ export default function PricingPage() {
         <div className="border-2 border-brand rounded-2xl p-8 relative">
           <span className="absolute -top-3 left-6 bg-brand text-white text-xs px-3 py-1 rounded-full">추천</span>
           <h2 className="text-xl font-bold mb-1">프리미엄</h2>
-          <p className="text-3xl font-extrabold mb-6">$5<span className="text-base font-normal text-gray-400">/월</span></p>
+          <p className="text-3xl font-extrabold mb-6">₩7,000<span className="text-base font-normal text-gray-400">/월</span></p>
           <ul className="text-sm text-gray-600 space-y-2 mb-8">
-            {['무제한 분류', 'Top-5 결과', 'Grad-CAM 히트맵', 'TTA 5-crop 앙상블', '불확실도 표시', '분류 히스토리', 'PWA 설치 + 오프라인'].map(f => (
+            {['무제한 분류', 'Top-5 결과', 'Grad-CAM 히트맵', 'TTA 5-crop 앙상블', '불확실도 표시', '분류 히스토리'].map(f => (
               <li key={f} className="flex items-center gap-2">✅ {f}</li>
             ))}
           </ul>
-          <a
-            href="/api/polar/checkout"
-            className="block text-center py-2.5 bg-brand text-white rounded-full hover:bg-brand-dark font-semibold"
+          <button
+            onClick={handleUpgrade}
+            disabled={loading}
+            className="w-full py-2.5 bg-brand text-white rounded-full hover:bg-brand-dark font-semibold disabled:opacity-50"
           >
-            업그레이드 →
-          </a>
+            {loading ? '연결 중...' : '업그레이드 →'}
+          </button>
         </div>
       </div>
     </main>

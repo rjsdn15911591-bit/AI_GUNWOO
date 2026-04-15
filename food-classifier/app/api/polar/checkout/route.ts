@@ -36,5 +36,5 @@ export async function GET(req: Request) {
     }
   }
 
-  return NextResponse.redirect(checkoutUrl)
+  return NextResponse.json({ url: checkoutUrl })
 }
