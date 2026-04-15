@@ -26,6 +26,7 @@ export default function ResultPanel({ result, isPremium }: Props) {
           <ConfidenceBar
             key={r.rank}
             label={r.label}
+            labelKo={r.labelKo}
             confidence={r.confidence}
             rank={r.rank}
             isFood={r.isFood}

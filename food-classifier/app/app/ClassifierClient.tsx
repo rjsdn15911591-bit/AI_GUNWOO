@@ -24,6 +24,7 @@ export default function ClassifierClient({ isPremium }: Props) {
   const [result, setResult] = useState<ClassificationResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [limitError, setLimitError] = useState('')
+  const [remaining, setRemaining] = useState<number | null>(null)
 
   const onModelReady = useCallback((m: mobilenet.MobileNet, b: TFBackend) => {
     setModel(m)
@@ -48,8 +49,10 @@ export default function ClassifierClient({ isPremium }: Props) {
     const usage = await checkAndIncrementUsage()
     if (!usage.allowed) {
       setLimitError('오늘 무료 분류 한도(5회)를 초과했습니다.')
+      setRemaining(0)
       return
     }
+    if (!isPremium) setRemaining(usage.remaining)
 
     setLoading(true)
     setLimitError('')
@@ -98,6 +101,12 @@ export default function ClassifierClient({ isPremium }: Props) {
                 {loading ? '분류 중...' : '🔍 분류 시작'}
               </button>
             </div>
+          )}
+
+          {!isPremium && remaining !== null && (
+            <p className="text-sm text-center text-gray-500">
+              오늘 남은 무료 분류 횟수: <span className="font-bold text-brand">{remaining}회</span> / 5회
+            </p>
           )}
 
           {limitError && (
