@@ -101,15 +101,15 @@ export async function classify(
   isPremium: boolean
 ): Promise<ClassificationResult> {
   const crops = extractCrops(img)
-  const numCrops = isPremium ? 5 : 1
+  const numCrops = isPremium ? 5 : 3   // 무료도 3-crop으로 정확도 향상
 
   const allRaw = await Promise.all(
     crops.slice(0, numCrops).map((crop) =>
-      model.classify(crop as unknown as HTMLImageElement, 10)
+      model.classify(crop as unknown as HTMLImageElement, 20)  // top-20으로 확장
     )
   )
 
-  const allCalibrated = allRaw.map((preds) => applyTemperature(preds, 1.5))
+  const allCalibrated = allRaw  // 온도 스케일링 제거 — confidence 그대로 유지
 
   const classMap = new Map<string, number>()
   allCalibrated.forEach((preds) => {

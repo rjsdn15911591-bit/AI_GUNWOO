@@ -20,6 +20,7 @@ export default function ClassifierClient({ isPremium }: Props) {
   const [backend, setBackend] = useState<TFBackend>('webgl')
   const [modelError, setModelError] = useState('')
   const [selectedImage, setSelectedImage] = useState<HTMLImageElement | null>(null)
+  const [previewSrc, setPreviewSrc] = useState<string>('')
   const [result, setResult] = useState<ClassificationResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [limitError, setLimitError] = useState('')
@@ -29,11 +30,20 @@ export default function ClassifierClient({ isPremium }: Props) {
     setBackend(b)
   }, [])
 
-  async function handleImage(img: HTMLImageElement) {
+  function handleImage(img: HTMLImageElement) {
     setSelectedImage(img)
     setResult(null)
     setLimitError('')
-    if (!model) return
+    // 미리보기용 canvas
+    const canvas = document.createElement('canvas')
+    canvas.width = img.naturalWidth || img.width
+    canvas.height = img.naturalHeight || img.height
+    canvas.getContext('2d')!.drawImage(img, 0, 0)
+    setPreviewSrc(canvas.toDataURL('image/jpeg', 0.8))
+  }
+
+  async function handleClassify() {
+    if (!model || !selectedImage) return
 
     const usage = await checkAndIncrementUsage()
     if (!usage.allowed) {
@@ -42,8 +52,9 @@ export default function ClassifierClient({ isPremium }: Props) {
     }
 
     setLoading(true)
+    setLimitError('')
     try {
-      const r = await classify(img, model, backend, isPremium)
+      const r = await classify(selectedImage, model, backend, isPremium)
       setResult(r)
       if (isPremium) {
         await saveClassification({
@@ -74,6 +85,20 @@ export default function ClassifierClient({ isPremium }: Props) {
             <ImageUploader onImageSelected={handleImage} />
             <CameraCapture onImageCaptured={handleImage} />
           </div>
+
+          {previewSrc && (
+            <div className="flex flex-col items-center gap-3">
+              <img src={previewSrc} alt="선택된 이미지"
+                className="max-h-64 rounded-xl object-contain border" />
+              <button
+                onClick={handleClassify}
+                disabled={loading}
+                className="px-8 py-3 bg-brand text-white rounded-full text-lg font-bold disabled:opacity-50"
+              >
+                {loading ? '분류 중...' : '🔍 분류 시작'}
+              </button>
+            </div>
+          )}
 
           {limitError && (
             <div className="p-3 bg-orange-50 border border-orange-200 rounded-xl text-sm text-orange-700 flex items-center justify-between">

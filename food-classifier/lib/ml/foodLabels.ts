@@ -1,22 +1,39 @@
 // food-classifier/lib/ml/foodLabels.ts
 
 export const FOOD_KEYWORDS = [
-  'pizza', 'burger', 'hamburger', 'hot dog', 'hotdog', 'sandwich',
-  'taco', 'burrito', 'sushi', 'ramen', 'noodle', 'pasta', 'spaghetti',
-  'steak', 'chicken', 'fish', 'shrimp', 'lobster', 'crab',
-  'bread', 'bagel', 'pretzel', 'croissant', 'waffle', 'pancake',
-  'cake', 'cupcake', 'donut', 'cookie', 'chocolate', 'ice cream',
-  'coffee', 'espresso', 'tea', 'beer', 'wine', 'juice',
-  'apple', 'banana', 'orange', 'lemon', 'strawberry', 'cherry',
-  'grape', 'watermelon', 'pineapple', 'mango', 'avocado',
-  'broccoli', 'cauliflower', 'mushroom', 'pepper', 'tomato',
-  'egg', 'cheese', 'butter', 'cream', 'yogurt', 'milk',
-  'soup', 'stew', 'curry', 'rice', 'salad', 'sauce',
-  'fries', 'chips', 'nachos', 'popcorn',
-  'dumpling', 'spring roll', 'pot sticker', 'fried rice',
-  'meatball', 'sausage', 'bacon', 'ham', 'turkey',
-  'gelatin', 'pudding', 'trifle', 'tiramisu', 'mousse',
-  'guacamole', 'hummus', 'salsa', 'pesto', 'mayo',
+  // 서양 음식
+  'pizza', 'burger', 'hamburger', 'hot dog', 'hotdog', 'sandwich', 'cheeseburger',
+  'taco', 'burrito', 'quesadilla', 'nachos', 'enchilada',
+  'sushi', 'sashimi', 'ramen', 'noodle', 'pasta', 'spaghetti', 'lasagna', 'ravioli',
+  'steak', 'chicken', 'fish', 'shrimp', 'lobster', 'crab', 'salmon', 'tuna', 'cod',
+  'bread', 'bagel', 'pretzel', 'croissant', 'waffle', 'pancake', 'muffin', 'biscuit',
+  'cake', 'cupcake', 'donut', 'doughnut', 'cookie', 'brownie', 'chocolate', 'ice cream',
+  'coffee', 'espresso', 'latte', 'cappuccino', 'tea', 'beer', 'wine', 'juice', 'smoothie',
+  // 과일
+  'apple', 'banana', 'orange', 'lemon', 'lime', 'strawberry', 'cherry', 'blueberry',
+  'grape', 'watermelon', 'pineapple', 'mango', 'avocado', 'peach', 'pear', 'kiwi',
+  'pomegranate', 'fig', 'coconut', 'papaya', 'melon', 'plum', 'apricot',
+  // 채소
+  'broccoli', 'cauliflower', 'mushroom', 'pepper', 'tomato', 'carrot', 'corn',
+  'spinach', 'lettuce', 'cucumber', 'onion', 'garlic', 'potato', 'sweet potato',
+  'eggplant', 'zucchini', 'asparagus', 'celery', 'cabbage', 'kale', 'artichoke',
+  // 유제품/달걀
+  'egg', 'omelette', 'cheese', 'butter', 'cream', 'yogurt', 'milk', 'ice cream',
+  // 요리
+  'soup', 'stew', 'curry', 'rice', 'fried rice', 'salad', 'sauce', 'gravy',
+  'fries', 'chips', 'popcorn', 'pretzel',
+  'dumpling', 'spring roll', 'pot sticker', 'wonton', 'dim sum',
+  'meatball', 'sausage', 'bacon', 'ham', 'turkey', 'pork', 'beef', 'lamb',
+  'gelatin', 'pudding', 'trifle', 'tiramisu', 'mousse', 'macaron', 'eclair',
+  'guacamole', 'hummus', 'salsa', 'pesto', 'mayo', 'ketchup', 'mustard',
+  'burrito', 'wrap', 'gyro', 'kebab', 'falafel',
+  'bibimbap', 'kimchi', 'japchae', 'bulgogi', 'tteok', 'gimbap', 'samgyeopsal',
+  'pad thai', 'pho', 'banh mi', 'tom yum', 'green curry',
+  'paella', 'risotto', 'gnocchi', 'focaccia', 'bruschetta',
+  'churro', 'crepe', 'macaron', 'profiterole', 'tart', 'pie', 'cobbler',
+  'granola', 'oatmeal', 'cereal', 'toast', 'french toast',
+  'burrito', 'empanada', 'tamale',
+  'poke', 'ceviche', 'gazpacho',
 ]
 
 export interface FoodResult {
