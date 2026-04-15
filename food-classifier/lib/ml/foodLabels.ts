@@ -27,7 +27,18 @@ export const FOOD_KEYWORDS = [
   'gelatin', 'pudding', 'trifle', 'tiramisu', 'mousse', 'macaron', 'eclair',
   'guacamole', 'hummus', 'salsa', 'pesto', 'mayo', 'ketchup', 'mustard',
   'burrito', 'wrap', 'gyro', 'kebab', 'falafel',
+  // 한식
   'bibimbap', 'kimchi', 'japchae', 'bulgogi', 'tteok', 'gimbap', 'samgyeopsal',
+  'doenjang', 'galbi', 'jjigae', 'sundubu', 'dakgalbi', 'haemul pajeon',
+  // 일식
+  'sushi', 'sashimi', 'ramen', 'udon', 'soba', 'tempura', 'tonkatsu', 'katsu',
+  'teriyaki', 'miso', 'onigiri', 'takoyaki', 'okonomiyaki', 'yakitori', 'gyoza',
+  'edamame', 'tofu', 'natto', 'karaage', 'shabu', 'sukiyaki', 'yakiniku',
+  'donburi', 'oyakodon', 'katsudon', 'gyudon', 'kaiseki', 'bento',
+  'mochi', 'wagashi', 'dorayaki', 'taiyaki', 'anmitsu', 'matcha',
+  'dashi', 'ponzu', 'wasabi', 'nori', 'wakame', 'kombu',
+  'unagi', 'ikura', 'tobiko', 'uni', 'toro', 'hamachi',
+  // 동남아
   'pad thai', 'pho', 'banh mi', 'tom yum', 'green curry',
   'paella', 'risotto', 'gnocchi', 'focaccia', 'bruschetta',
   'churro', 'crepe', 'macaron', 'profiterole', 'tart', 'pie', 'cobbler',
