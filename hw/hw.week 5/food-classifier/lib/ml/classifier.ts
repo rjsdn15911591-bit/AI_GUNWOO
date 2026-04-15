@@ -40,9 +40,9 @@ export async function loadModel(
 
 function extractCrops(
   img: HTMLImageElement | HTMLCanvasElement | ImageData
-): tf.Tensor4D[] {
+): tf.Tensor3D[] {
   const base = tf.browser.fromPixels(img as HTMLImageElement)
-    .resizeBilinear([256, 256])
+    .resizeBilinear([256, 256])  // float32, values [0, 255]
   const cropSize = 224
 
   const offsets: [number, number][] = [
@@ -53,36 +53,28 @@ function extractCrops(
     [256 - cropSize, 256 - cropSize],
   ]
 
+  // NOTE: NO .div(255) here — MobileNet.classify() normalizes [0,255]→[-1,1] internally.
+  // Dividing by 255 before classify() caused double-normalization → all pixels ≈ -1 → garbage results.
   const crops = offsets.map(([y, x]) =>
     base
       .slice([y, x, 0], [cropSize, cropSize, 3])
-      .toFloat()
-      .div(255.0)
-      .expandDims(0) as tf.Tensor4D
+      .toFloat() as tf.Tensor3D
   )
 
-  base.dispose()  // dispose intermediate tensor
+  base.dispose()
   return crops
 }
 
-async function tensorToBase64(t: tf.Tensor4D): Promise<string> {
+async function tensorToBase64(t: tf.Tensor3D): Promise<string> {
   const canvas = document.createElement('canvas')
   canvas.width = 224
   canvas.height = 224
-  await tf.browser.toPixels(t.squeeze([0]) as tf.Tensor3D, canvas)
+  const normalized = t.div(255) as tf.Tensor3D
+  await tf.browser.toPixels(normalized, canvas)
+  normalized.dispose()
   return canvas.toDataURL('image/jpeg', 0.7)
 }
 
-function applyTemperature(
-  preds: Array<{ className: string; probability: number }>,
-  T = 1.5
-): Array<{ className: string; probability: number }> {
-  const logits = preds.map((p) => Math.log(p.probability + 1e-10) / T)
-  const maxLogit = Math.max(...logits)
-  const exps = logits.map((l) => Math.exp(l - maxLogit))
-  const sum = exps.reduce((a, b) => a + b, 0)
-  return preds.map((p, i) => ({ ...p, probability: exps[i] / sum }))
-}
 
 function computeSigma(
   allPreds: Array<Array<{ className: string; probability: number }>>
@@ -101,15 +93,16 @@ export async function classify(
   isPremium: boolean
 ): Promise<ClassificationResult> {
   const crops = extractCrops(img)
-  const numCrops = isPremium ? 5 : 1
+  const numCrops = isPremium ? 5 : 3
 
+  // Pass Tensor3D directly — values in [0,255]; MobileNet handles normalization internally
   const allRaw = await Promise.all(
     crops.slice(0, numCrops).map((crop) =>
-      model.classify(crop as unknown as HTMLImageElement, 10)
+      model.classify(crop as unknown as HTMLImageElement, 20)
     )
   )
 
-  const allCalibrated = allRaw.map((preds) => applyTemperature(preds, 1.5))
+  const allCalibrated = allRaw
 
   const classMap = new Map<string, number>()
   allCalibrated.forEach((preds) => {

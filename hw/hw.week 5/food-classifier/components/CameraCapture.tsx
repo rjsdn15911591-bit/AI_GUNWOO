@@ -58,32 +58,31 @@ export default function CameraCapture({ onImageCaptured }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      {!active ? (
+      {!active && (
         <button
           onClick={startCamera}
           className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium"
         >
           📷 카메라로 촬영
         </button>
-      ) : (
-        <div className="relative rounded-xl overflow-hidden bg-black">
-          <video ref={videoRef} className="w-full rounded-xl" muted playsInline />
-          <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-3">
-            <button
-              onClick={capture}
-              className="px-6 py-2 bg-brand text-white rounded-full font-bold shadow-lg"
-            >
-              촬영
-            </button>
-            <button
-              onClick={stopCamera}
-              className="px-4 py-2 bg-gray-700 text-white rounded-full text-sm"
-            >
-              취소
-            </button>
-          </div>
-        </div>
       )}
+      <div className={active ? 'relative rounded-xl overflow-hidden bg-black' : 'hidden'}>
+        <video ref={videoRef} className="w-full rounded-xl" muted playsInline />
+        <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-3">
+          <button
+            onClick={capture}
+            className="px-6 py-2 bg-brand text-white rounded-full font-bold shadow-lg"
+          >
+            촬영
+          </button>
+          <button
+            onClick={stopCamera}
+            className="px-4 py-2 bg-gray-700 text-white rounded-full text-sm"
+          >
+            취소
+          </button>
+        </div>
+      </div>
       <canvas ref={canvasRef} className="hidden" />
     </div>
   )

@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function ResultPanel({ result, isPremium }: Props) {
-  const displayResults = isPremium ? result.results : result.results.slice(0, 1)
+  const displayResults = result.results  // 무료/프리미엄 모두 전체 후보 표시
   const likelyFood = isLikelyFood(result.results)
 
   return (
@@ -26,6 +26,7 @@ export default function ResultPanel({ result, isPremium }: Props) {
           <ConfidenceBar
             key={r.rank}
             label={r.label}
+            labelKo={r.labelKo}
             confidence={r.confidence}
             rank={r.rank}
             isFood={r.isFood}

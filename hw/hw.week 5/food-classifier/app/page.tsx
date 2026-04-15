@@ -1,8 +1,10 @@
 // food-classifier/app/page.tsx
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
 
 export default async function LandingPage() {
-  const user = null
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }))
 
   return (
     <main className="min-h-screen bg-white">
