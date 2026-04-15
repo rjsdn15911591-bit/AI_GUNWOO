@@ -27,6 +27,23 @@ export const FOOD_KEYWORDS = [
   'gelatin', 'pudding', 'trifle', 'tiramisu', 'mousse', 'macaron', 'eclair',
   'guacamole', 'hummus', 'salsa', 'pesto', 'mayo', 'ketchup', 'mustard',
   'burrito', 'wrap', 'gyro', 'kebab', 'falafel',
+  // ImageNet 실제 출력 클래스 (모델이 실제로 예측하는 음식 관련 레이블)
+  'consomme', 'cheeseburger', 'french loaf', 'loaf', 'meat loaf', 'meatloaf',
+  'squash', 'butternut', 'acorn squash', 'Granny Smith',
+  'carbonara', 'broth', 'bouillon', 'bisque', 'chowder',
+  'fried', 'breaded', 'cutlet', 'schnitzel', 'katsu',
+  'dough', 'batter', 'bun', 'roll', 'flatbread', 'tortilla', 'pita',
+  'cheddar', 'gouda', 'brie', 'mozzarella', 'parmesan',
+  'sirloin', 'tenderloin', 'ribeye', 'brisket', 'chuck', 'loin',
+  'drumstick', 'wing', 'breast', 'thigh', 'roast',
+  'nori', 'seaweed', 'kombu', 'bonito', 'anchovy',
+  'clam', 'oyster', 'mussel', 'scallop', 'squid', 'octopus',
+  'lentil', 'chickpea', 'bean', 'pea', 'edamame',
+  'ginger', 'turmeric', 'cinnamon', 'sesame', 'soy',
+  'vinegar', 'olive oil', 'broth', 'stock',
+  'naan', 'chapati', 'dumpling', 'pierogi', 'empanada',
+  'affogato', 'gelato', 'sorbet', 'parfait', 'sundae',
+  'chutney', 'relish', 'aioli', 'tapenade',
   // 한식 — 밥류
   'bibimbap', 'gimbap', 'fried rice', 'dolsot', 'congee', 'porridge', 'juk',
   'bokkeum', 'bokkeumbap', 'rice bowl',
@@ -131,6 +148,18 @@ export const KOREAN_MAP: Record<string, string> = {
   'french toast': '프렌치토스트', kebab: '케밥', gyro: '지로',
   falafel: '팔라펠', hummus: '후무스', guacamole: '과카몰리',
   'green curry': '그린카레',
+  // ImageNet 실제 출력 클래스 한글화
+  consomme: '콩소메 수프', 'french loaf': '바게트', 'meat loaf': '미트로프',
+  meatloaf: '미트로프', squash: '스쿼시', butternut: '버터넛 스쿼시',
+  'Granny Smith': '그래니 스미스 사과', schnitzel: '슈니첼', cutlet: '커틀릿',
+  brisket: '브리스킷', loin: '등심', sirloin: '등심 스테이크',
+  tenderloin: '안심', ribeye: '립아이', drumstick: '닭다리',
+  roast: '구이', clam: '조개', oyster: '굴', mussel: '홍합',
+  scallop: '가리비', squid: '오징어', octopus: '문어',
+  lentil: '렌틸콩', chickpea: '병아리콩', bean: '콩',
+  sesame: '참깨', ginger: '생강', naan: '난', pierogi: '피에로기',
+  gelato: '젤라토', sorbet: '셔벗', parfait: '파르페', sundae: '선데',
+  affogato: '아포가토', anchovy: '멸치', bonito: '가다랑어',
 }
 
 export function toKorean(label: string): string {
@@ -156,7 +185,7 @@ export function filterAndRankResults(
   predictions: Array<{ className: string; probability: number }>,
   topK = 5
 ): FoodResult[] {
-  return predictions.slice(0, topK).map((p, i) => ({
+  const tagged = predictions.map((p, i) => ({
     label: p.className.replace(/_/g, ' '),
     labelKo: toKorean(p.className),
     confidence: p.probability,
@@ -165,6 +194,14 @@ export function filterAndRankResults(
       p.className.toLowerCase().includes(kw.toLowerCase())
     ),
   }))
+
+  // 음식으로 분류된 항목만 먼저 추출
+  const foodOnly = tagged.filter((r) => r.isFood)
+
+  // 음식 결과가 1개 이상이면 음식만 표시, 없으면 전체에서 top-K 표시 (경고 메시지용)
+  const toShow = foodOnly.length > 0 ? foodOnly : tagged.slice(0, topK)
+
+  return toShow.slice(0, topK).map((r, i) => ({ ...r, rank: i + 1 }))
 }
 
 export function isLikelyFood(results: FoodResult[]): boolean {
