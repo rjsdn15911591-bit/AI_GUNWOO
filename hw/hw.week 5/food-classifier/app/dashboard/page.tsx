@@ -38,7 +38,7 @@ export default async function DashboardPage() {
         <p className="text-gray-400">아직 분류 기록이 없습니다.</p>
       ) : (
         <div className="flex flex-col gap-3">
-          {history.map((item) => (
+          {history.map((item: Record<string, any>) => (
             <div key={item.id}
               className="flex items-center justify-between p-4 bg-white border rounded-xl">
               <div>
