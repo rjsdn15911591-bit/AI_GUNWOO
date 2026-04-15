@@ -27,9 +27,32 @@ export const FOOD_KEYWORDS = [
   'gelatin', 'pudding', 'trifle', 'tiramisu', 'mousse', 'macaron', 'eclair',
   'guacamole', 'hummus', 'salsa', 'pesto', 'mayo', 'ketchup', 'mustard',
   'burrito', 'wrap', 'gyro', 'kebab', 'falafel',
-  // 한식
-  'bibimbap', 'kimchi', 'japchae', 'bulgogi', 'tteok', 'gimbap', 'samgyeopsal',
-  'doenjang', 'galbi', 'jjigae', 'sundubu', 'dakgalbi', 'haemul pajeon',
+  // 한식 — 밥류
+  'bibimbap', 'gimbap', 'fried rice', 'dolsot', 'congee', 'porridge', 'juk',
+  'bokkeum', 'bokkeumbap', 'rice bowl',
+  // 한식 — 국·찌개·탕
+  'kimchi jjigae', 'doenjang jjigae', 'sundubu jjigae', 'budae jjigae',
+  'seolleongtang', 'galbitang', 'samgyetang', 'haejangguk', 'miyeokguk',
+  'yukgaejang', 'kongnamulguk', 'gukbap',
+  // 한식 — 고기류
+  'bulgogi', 'galbi', 'samgyeopsal', 'dakgalbi', 'buldak', 'jeyuk bokkeum',
+  'galbi jjim', 'braised short rib', 'dwaeji galbi', 'chadolbaegi',
+  // 한식 — 김치·반찬
+  'kimchi', 'kkakdugi', 'oi sobagi', 'nabak kimchi', 'dongchimi',
+  'japchae', 'sigeumchi namul', 'kongnamul', 'doraji namul', 'gosari namul',
+  'dubu jorim', 'gamja jorim', 'myeolchi bokkeum',
+  // 한식 — 면류
+  'jjajangmyeon', 'jjamppong', 'naengmyeon', 'mul naengmyeon', 'bibim naengmyeon',
+  'ramyeon', 'udon', 'kalguksu', 'sujebi', 'kongguksu',
+  // 한식 — 분식
+  'tteokbokki', 'tteok', 'mandu', 'kimbap', 'twigim', 'sundae',
+  'hotteok', 'bungeoppang', 'gyeran ppang', 'odeng', 'eomuk',
+  // 한식 — 해산물
+  'haemul', 'haemul pajeon', 'pajeon', 'bindaetteok', 'jeon',
+  'ganjang gejang', 'yangnyeom gejang', 'ojingeo bokkeum',
+  // 한식 — 디저트·음료
+  'bingsu', 'patbingsu', 'sikhye', 'sujeonggwa', 'makgeolli', 'soju',
+  'misugaru', 'injeolmi', 'yakgwa', 'hangwa', 'chapssaltteok',
   // 일식
   'sushi', 'sashimi', 'ramen', 'udon', 'soba', 'tempura', 'tonkatsu', 'katsu',
   'teriyaki', 'miso', 'onigiri', 'takoyaki', 'okonomiyaki', 'yakitori', 'gyoza',
