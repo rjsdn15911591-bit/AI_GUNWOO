@@ -107,8 +107,7 @@ export const KOREAN_MAP: Record<string, string> = {
   sashimi: '생선회',                // 표준국어대사전: 회/생선회
   ramen: '라멘', udon: '우동', soba: '소바', ramyeon: '라면',
   tempura: '덴푸라',                // 표준국어대사전: 덴푸라
-  tonkatsu: '돈가스',               // 표준국어대사전: 돈가스
-  katsu: '돈가스', katsudon: '가쓰동', oyakodon: '오야코동',
+  tonkatsu: '돈까스', katsu: '돈까스', katsudon: '돈까스 덮밥', oyakodon: '오야코동',
   gyudon: '규동', donburi: '덮밥',
   karaage: '가라아게', teriyaki: '데리야키',
   takoyaki: '타코야키', okonomiyaki: '오코노미야키',

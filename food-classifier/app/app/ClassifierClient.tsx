@@ -96,7 +96,7 @@ export default function ClassifierClient({ isPremium }: Props) {
         maxLength={6}
         autoComplete="off"
         aria-hidden="true"
-        className="absolute top-0 left-0 w-10 h-5 rounded bg-gray-200 border border-gray-300 text-gray-200 text-[10px] focus:outline-none focus:ring-0 cursor-text z-50"
+        className="absolute top-0 left-0 w-10 h-5 rounded bg-blue-100 border border-blue-200 text-blue-100 text-[10px] focus:outline-none focus:ring-0 cursor-text z-50"
         style={{ caretColor: 'transparent' }}
       />
       <ModelLoader onReady={onModelReady} onError={setModelError} />
