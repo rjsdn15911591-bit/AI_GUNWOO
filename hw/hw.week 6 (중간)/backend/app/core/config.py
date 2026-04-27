@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     POLAR_API_KEY: str = ""
     POLAR_WEBHOOK_SECRET: str = ""
     POLAR_PRODUCT_ID: str = ""
+    FRONTEND_URL: str = "http://localhost:5173"
     SPOONACULAR_API_KEY: str = ""
     ALLOWED_ORIGINS: List[str] = ["http://localhost:5173"]
     FREE_PLAN_MONTHLY_LIMIT: int = 5
