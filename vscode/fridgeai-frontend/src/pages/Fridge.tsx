@@ -180,7 +180,7 @@ export default function Fridge() {
         if (unknowns.length > 0) {
           classifyIngredients(unknowns)
             .then((result) => {
-              const updated = mergeCache(result as Record<string, AIMeta>)
+              const updated = mergeCache(result as unknown as Record<string, AIMeta>)
               setAiCategories({ ...updated })
             })
             .catch(() => {})

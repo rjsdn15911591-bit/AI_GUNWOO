@@ -14,7 +14,7 @@ export const getAICandidates = (data: {
   food_types: string[]
   custom_type?: string
   tastes: string[]
-}): Promise<{ candidates: { name: string; description: string }[] }> =>
+}): Promise<{ candidates: { name: string; description: string }[]; recipe_remaining?: number }> =>
   api.post('/api/v1/recipes/ai-candidates', data).then((r) => r.data)
 
 export const generateAIRecipeFromDish = (data: {
