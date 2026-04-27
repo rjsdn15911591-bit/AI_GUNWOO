@@ -88,7 +88,7 @@ async def google_callback(
     await db.commit()
 
     is_secure = settings.APP_ENV == "production"
-    redirect = RedirectResponse(url="http://localhost:5173/dashboard", status_code=302)
+    redirect = RedirectResponse(url=f"{settings.FRONTEND_URL}/dashboard", status_code=302)
     redirect.set_cookie(
         "access_token",
         access_token,
