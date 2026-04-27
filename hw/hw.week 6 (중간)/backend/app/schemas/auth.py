@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+import uuid
+from pydantic import BaseModel, field_serializer
 
 
 class GoogleLoginResponse(BaseModel):
@@ -6,10 +7,13 @@ class GoogleLoginResponse(BaseModel):
 
 
 class UserResponse(BaseModel):
-    id: str
+    id: uuid.UUID
     email: str
     display_name: str | None
     avatar_url: str | None
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
+
+    @field_serializer('id')
+    def serialize_id(self, v: uuid.UUID) -> str:
+        return str(v)

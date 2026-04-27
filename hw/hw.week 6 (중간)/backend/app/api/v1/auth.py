@@ -1,5 +1,7 @@
 from datetime import datetime, timezone, timedelta
+from urllib.parse import urlencode
 from fastapi import APIRouter, Depends, HTTPException, Response, Cookie
+from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 import httpx
@@ -27,7 +29,7 @@ async def google_login():
         "scope": "openid email profile",
         "access_type": "offline",
     }
-    url = GOOGLE_AUTH_URL + "?" + "&".join(f"{k}={v}" for k, v in params.items())
+    url = GOOGLE_AUTH_URL + "?" + urlencode(params)
     return {"authorization_url": url}
 
 
@@ -47,6 +49,11 @@ async def google_callback(
             },
         )
         token_data = token_resp.json()
+        if "access_token" not in token_data:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Google token error: {token_data.get('error', 'unknown')} — {token_data.get('error_description', '')}",
+            )
         userinfo_resp = await client.get(
             GOOGLE_USERINFO_URL,
             headers={"Authorization": f"Bearer {token_data['access_token']}"},
@@ -80,24 +87,26 @@ async def google_callback(
     )
     await db.commit()
 
-    response.set_cookie(
+    is_secure = settings.APP_ENV == "production"
+    redirect = RedirectResponse(url="http://localhost:5173/dashboard", status_code=302)
+    redirect.set_cookie(
         "access_token",
         access_token,
         httponly=True,
-        secure=True,
-        samesite="strict",
+        secure=is_secure,
+        samesite="lax",
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
-    response.set_cookie(
+    redirect.set_cookie(
         "refresh_token",
         raw_refresh,
         httponly=True,
-        secure=True,
-        samesite="strict",
+        secure=is_secure,
+        samesite="lax",
         path="/auth/refresh",
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400,
     )
-    return {"status": "ok"}
+    return redirect
 
 
 @router.post("/refresh")

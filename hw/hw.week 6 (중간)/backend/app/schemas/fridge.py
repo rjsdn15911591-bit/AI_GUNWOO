@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+import uuid
+from pydantic import BaseModel, field_serializer
 from decimal import Decimal
 from datetime import date, datetime
 
@@ -18,7 +19,7 @@ class IngredientUpdate(BaseModel):
 
 
 class IngredientResponse(BaseModel):
-    id: str
+    id: uuid.UUID
     name: str
     original_name: str | None
     quantity: Decimal | None
@@ -27,8 +28,15 @@ class IngredientResponse(BaseModel):
     source: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
+
+    @field_serializer("id")
+    def serialize_id(self, v: uuid.UUID) -> str:
+        return str(v)
+
+    @field_serializer("quantity")
+    def serialize_quantity(self, v: Decimal | None) -> float | None:
+        return float(v) if v is not None else None
 
 
 class BulkIngredientItem(BaseModel):
@@ -39,9 +47,12 @@ class BulkIngredientItem(BaseModel):
 
 
 class FridgeResponse(BaseModel):
-    id: str
+    id: uuid.UUID
     name: str
     ingredients: list[IngredientResponse]
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
+
+    @field_serializer("id")
+    def serialize_id(self, v: uuid.UUID) -> str:
+        return str(v)
