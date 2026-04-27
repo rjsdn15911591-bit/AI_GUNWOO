@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+asyncpg://user:password@localhost:5432/fridgeai"
     JWT_PRIVATE_KEY_PATH: str = "./keys/private.pem"
     JWT_PUBLIC_KEY_PATH: str = "./keys/public.pem"
+    JWT_PRIVATE_KEY_B64: str = ""
+    JWT_PUBLIC_KEY_B64: str = ""
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
     GOOGLE_CLIENT_ID: str = ""
