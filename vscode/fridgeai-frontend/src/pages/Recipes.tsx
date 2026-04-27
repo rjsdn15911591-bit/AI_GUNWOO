@@ -76,7 +76,7 @@ export default function Recipes() {
       })
       setAiCandidates(res.candidates)
       if (res.recipe_remaining !== undefined) {
-        setQuota((q) => q ? { ...q, recipe_remaining: res.recipe_remaining, recipe_usage: q.recipe_limit - res.recipe_remaining } : q)
+        setQuota((q) => q ? { ...q, recipe_remaining: res.recipe_remaining ?? 0, recipe_usage: q.recipe_limit - (res.recipe_remaining ?? 0) } : q)
       }
       setAiStep('candidates')
     } catch (err: any) {
