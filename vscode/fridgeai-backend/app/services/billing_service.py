@@ -1,8 +1,6 @@
 import httpx
-import logging
 from app.core.config import settings
 
-logger = logging.getLogger(__name__)
 POLAR_API_BASE = "https://api.polar.sh"
 
 
@@ -11,24 +9,19 @@ async def create_checkout_url(user_id: str) -> str:
     if not settings.POLAR_API_KEY or not settings.POLAR_PRODUCT_ID:
         return f"https://buy.polar.sh/{settings.POLAR_PRODUCT_ID}?metadata[user_id]={user_id}"
 
-    payload = {
-        "product_id": settings.POLAR_PRODUCT_ID,
-        "metadata": {"user_id": str(user_id)},
-        "success_url": f"{settings.FRONTEND_URL}/subscription?success=1",
-    }
-    print(f"[Polar] checkout request product_id={settings.POLAR_PRODUCT_ID}", flush=True)
-
     async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
         resp = await client.post(
             f"{POLAR_API_BASE}/v1/checkouts",
-            json=payload,
+            json={
+                "product_id": settings.POLAR_PRODUCT_ID,
+                "metadata": {"user_id": str(user_id)},
+                "success_url": f"{settings.FRONTEND_URL}/subscription?success=1",
+            },
             headers={
                 "Authorization": f"Bearer {settings.POLAR_API_KEY}",
                 "Content-Type": "application/json",
             },
         )
-
-    print(f"[Polar] checkout response: status={resp.status_code} body={resp.text}", flush=True)
     resp.raise_for_status()
     return resp.json()["url"]
 
