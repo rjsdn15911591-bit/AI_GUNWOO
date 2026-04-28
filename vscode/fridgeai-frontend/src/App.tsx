@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAuthStore } from './store/authStore'
@@ -68,21 +68,48 @@ function LoadingScreen() {
   )
 }
 
-const BG_IMAGE = (
-  <>
-    <div style={{
-      position: 'fixed', inset: 0,
-      backgroundImage: 'url(/bg-market.jpg)',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center 40%',
-      filter: 'blur(8px)',
-      transform: 'scale(1.1)',
-      opacity: 0.45,
-      zIndex: 0,
-    }} />
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(237,233,225,0.65)', zIndex: 0 }} />
-  </>
-)
+const BG_IMAGES = ['/bg-market.jpg', '/bg-seafood.jpg']
+const BG_INTERVAL = 6000 // 6초마다 전환
+
+function BackgroundSlideshow() {
+  const [current, setCurrent] = useState(0)
+  const [prev, setPrev] = useState<number | null>(null)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPrev(current)
+      setCurrent((c) => (c + 1) % BG_IMAGES.length)
+    }, BG_INTERVAL)
+    return () => clearInterval(timer)
+  }, [current])
+
+  return (
+    <>
+      {/* 이전 사진 (페이드 아웃) */}
+      {prev !== null && (
+        <div key={`prev-${prev}`} style={{
+          position: 'fixed', inset: 0,
+          backgroundImage: `url(${BG_IMAGES[prev]})`,
+          backgroundSize: 'cover', backgroundPosition: 'center 40%',
+          filter: 'blur(8px)', transform: 'scale(1.1)',
+          opacity: 0, transition: 'opacity 1.5s ease',
+          zIndex: 0,
+        }} />
+      )}
+      {/* 현재 사진 (페이드 인) */}
+      <div key={`cur-${current}`} style={{
+        position: 'fixed', inset: 0,
+        backgroundImage: `url(${BG_IMAGES[current]})`,
+        backgroundSize: 'cover', backgroundPosition: 'center 40%',
+        filter: 'blur(8px)', transform: 'scale(1.1)',
+        opacity: 0.45, transition: 'opacity 1.5s ease',
+        zIndex: 0,
+      }} />
+      {/* 오버레이 */}
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(237,233,225,0.65)', zIndex: 0 }} />
+    </>
+  )
+}
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, initialized } = useAuthStore()
@@ -90,7 +117,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (!user) return <Navigate to="/" replace />
   return (
     <Suspense fallback={<LoadingScreen />}>
-      {BG_IMAGE}
+      <BackgroundSlideshow />
       <div style={{ position: 'relative', zIndex: 1 }}>
         {children}
       </div>
