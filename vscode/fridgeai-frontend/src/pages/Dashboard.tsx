@@ -34,12 +34,12 @@ export default function Dashboard() {
         backgroundImage: 'url(/bg-market.jpg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center 40%',
-        filter: 'blur(6px)',
-        transform: 'scale(1.08)',
-        opacity: 0.18,
+        filter: 'blur(8px)',
+        transform: 'scale(1.1)',
+        opacity: 0.45,
         zIndex: 0,
       }} />
-      <div style={{ position: 'fixed', inset: 0, background: 'rgba(237,233,225,0.78)', zIndex: 0 }} />
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(237,233,225,0.65)', zIndex: 0 }} />
 
       {/* ── 콘텐츠 래퍼 ── */}
       <div style={{ position: 'relative', zIndex: 1 }}>
