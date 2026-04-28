@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import api from '../api/auth'
-
-const SECRET = '060227'
+import { useQuotaStore } from '../store/quotaStore'
+import { getQuotaStatus } from '../api/recipes'
 
 type Step = 'closed' | 'password' | 'panel'
 
@@ -12,6 +12,7 @@ export default function AdminPanel() {
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null)
   const [loading, setLoading] = useState<string | null>(null)
   const tabHeld = useRef(false)
+  const { setQuota } = useQuotaStore()
 
   // Tab + F12 동시 → 비밀번호 창
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -45,25 +46,31 @@ export default function AdminPanel() {
     }
   }, [handleKeyDown, handleKeyUp])
 
+  // 비밀번호 제출 → 패널 진입 (실제 검증은 첫 API 호출에서)
   const handlePwSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (pw === SECRET) {
-      setStep('panel')
-      setPwError(false)
-    } else {
-      setPwError(true)
-      setPw('')
-    }
+    if (!pw.trim()) return
+    setStep('panel')
+    setPwError(false)
   }
 
   const call = async (endpoint: string, label: string) => {
     setLoading(label)
     setMessage(null)
     try {
-      const res = await api.post(`/api/v1/admin/${endpoint}`, { secret: SECRET })
+      const res = await api.post(`/api/v1/admin/${endpoint}`, { secret: pw })
       setMessage({ text: res.data.message, ok: true })
+      // 성공 후 쿼터 스토어 갱신
+      getQuotaStatus().then(setQuota).catch(() => {})
     } catch (err: any) {
-      setMessage({ text: err?.response?.data?.detail ?? '오류 발생', ok: false })
+      if (err?.response?.status === 403) {
+        // 비밀번호 틀림 → 다시 입력
+        setStep('password')
+        setPwError(true)
+        setPw('')
+      } else {
+        setMessage({ text: err?.response?.data?.detail ?? '오류 발생', ok: false })
+      }
     } finally {
       setLoading(null)
     }
@@ -131,21 +138,21 @@ export default function AdminPanel() {
               <AdminBtn
                 icon="🔄"
                 label="한도 초기화"
-                sub="이번 달 분석 사용량을 0으로 리셋"
+                sub="이번 달 분석·레시피 사용량을 0으로 리셋"
                 loading={loading === 'reset-quota'}
                 onClick={() => call('reset-quota', 'reset-quota')}
               />
               <AdminBtn
                 icon="⭐"
                 label="PRO 모드 전환"
-                sub="한도를 99,999회로 설정"
+                sub="분석·레시피 한도를 99,999회로 설정"
                 loading={loading === 'set-pro'}
                 onClick={() => call('set-pro', 'set-pro')}
               />
               <AdminBtn
                 icon="💎"
                 label="프리미엄으로 변경"
-                sub="구독 상태를 Premium으로 설정"
+                sub="구독 상태를 Premium으로 설정 (30회/월)"
                 loading={loading === 'set-premium'}
                 onClick={() => call('set-premium', 'set-premium')}
               />
