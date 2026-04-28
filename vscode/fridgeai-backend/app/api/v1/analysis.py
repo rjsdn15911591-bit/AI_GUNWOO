@@ -1,5 +1,6 @@
 import uuid
 import asyncio
+import logging
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,10 +14,12 @@ from app.services.quota_service import (
     QuotaExceededException,
 )
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
 ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp"}
 MAX_SIZE = 10 * 1024 * 1024
-MAX_IMAGES = 3
+MAX_IMAGES = 2
 
 
 @router.post("/upload")
@@ -64,13 +67,17 @@ async def upload_and_analyze(
             *[analyze_image(b, ct) for b, ct in image_data],
             return_exceptions=True,
         )
-    except Exception:
+    except Exception as e:
+        logger.error(f"[Analysis] gather failed: {e}")
         raise HTTPException(500, {"error": "internal_error"})
 
     # 결과 병합 (에러난 이미지는 스킵, name 기준 중복 제거)
     merged: dict[str, dict] = {}
+    has_error = False
     for result in results:
         if isinstance(result, Exception):
+            has_error = True
+            logger.error(f"[Analysis] image failed: {type(result).__name__}: {result}")
             continue
         for item in result:
             name = item.get("name", "")
@@ -80,6 +87,8 @@ async def upload_and_analyze(
     detected = list(merged.values())
 
     if not detected:
+        if has_error:
+            raise HTTPException(500, {"error": "ai_timeout"})
         raise HTTPException(422, {"error": "parsing_failed"})
 
     # 쿼터 1회 차감 (분석 성공 후)

@@ -74,7 +74,7 @@ export default function Analyze() {
       const detail = anyErr.response?.data?.detail
       if (detail?.error === 'quota_exceeded') {
         setError(`월 분석 횟수를 모두 사용했습니다. ${detail.reset_date?.slice(0, 10) ?? ''} 초기화됩니다.`)
-      } else if (detail?.error === 'analysis_timeout') {
+      } else if (detail?.error === 'ai_timeout' || detail?.error === 'analysis_timeout') {
         setError('분석 시간이 초과됐습니다. 다시 시도해주세요.')
       } else if (detail?.error === 'parsing_failed') {
         setError('식재료를 인식하지 못했습니다. 더 선명한 사진을 시도해주세요.')
@@ -194,7 +194,7 @@ export default function Analyze() {
               <div className="text-center py-6 mb-4 rounded-2xl" style={{ background: '#fff', border: '0.5px solid #D3D1C7' }}>
                 <div className="text-4xl mb-3 animate-pulse">🔍</div>
                 <p className="font-semibold text-sm" style={{ color: '#1D9E75' }}>AI가 식재료를 분석 중입니다</p>
-                <p className="text-xs mt-1" style={{ color: '#5DCAA5' }}>{images.length}장 분석 중 · 최대 30초 소요</p>
+                <p className="text-xs mt-1" style={{ color: '#5DCAA5' }}>{images.length}장 분석 중 · 최대 90초 소요</p>
               </div>
             )}
 

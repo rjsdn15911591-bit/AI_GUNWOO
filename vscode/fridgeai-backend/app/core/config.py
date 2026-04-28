@@ -19,8 +19,8 @@ class Settings(BaseSettings):
     GOOGLE_REDIRECT_URI: str = "http://localhost:8000/auth/google/callback"
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-4o"
-    OPENAI_TIMEOUT_SECONDS: int = 30
-    OPENAI_MAX_RETRIES: int = 2
+    OPENAI_TIMEOUT_SECONDS: int = 90
+    OPENAI_MAX_RETRIES: int = 1
     POLAR_API_KEY: str = ""
     POLAR_WEBHOOK_SECRET: str = ""
     POLAR_PRODUCT_ID: str = ""
