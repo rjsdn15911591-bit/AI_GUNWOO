@@ -58,9 +58,33 @@ async def set_pro(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    """구독을 Premium으로 설정 + 분석·레시피 한도를 99,999로 설정 (관리자 풀 활성화)"""
     _verify(body.secret)
     year_month = get_current_year_month()
+    now = datetime.now(timezone.utc)
+    far_future = datetime(2099, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
 
+    # 1) 구독을 Premium으로 설정
+    result = await db.execute(
+        select(Subscription).where(Subscription.user_id == current_user.id).limit(1)
+    )
+    sub = result.scalar_one_or_none()
+    if sub:
+        sub.status = "active"
+        sub.plan_type = "premium"
+        sub.current_period_start = now
+        sub.current_period_end = far_future
+        sub.canceled_at = None
+    else:
+        db.add(Subscription(
+            user_id=current_user.id,
+            status="active",
+            plan_type="premium",
+            current_period_start=now,
+            current_period_end=far_future,
+        ))
+
+    # 2) 이달 사용량 리셋 + 한도 무제한
     for feature in FEATURES:
         result = await db.execute(
             select(MonthlyUsage).where(
@@ -74,17 +98,16 @@ async def set_pro(
             usage.usage_count = 0
             usage.limit_count = ADMIN_UNLIMITED
         else:
-            usage = MonthlyUsage(
+            db.add(MonthlyUsage(
                 user_id=current_user.id,
                 year_month=year_month,
                 feature=feature,
                 usage_count=0,
                 limit_count=ADMIN_UNLIMITED,
-            )
-            db.add(usage)
+            ))
 
     await db.commit()
-    return {"ok": True, "message": f"PRO 모드 활성화 (분석 {ADMIN_UNLIMITED}회 · 레시피 {ADMIN_UNLIMITED}회)"}
+    return {"ok": True, "message": f"⭐ Premium + 한도 {ADMIN_UNLIMITED}회 활성화 완료"}
 
 
 @router.post("/set-premium")
@@ -93,6 +116,7 @@ async def set_premium(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    """구독을 Premium으로 설정 (한도는 PRO_LIMITS 30회/월로 유지)"""
     _verify(body.secret)
 
     result = await db.execute(
@@ -110,17 +134,16 @@ async def set_premium(
         sub.current_period_end = far_future
         sub.canceled_at = None
     else:
-        sub = Subscription(
+        db.add(Subscription(
             user_id=current_user.id,
             status="active",
             plan_type="premium",
             current_period_start=now,
             current_period_end=far_future,
-        )
-        db.add(sub)
+        ))
 
     await db.commit()
-    return {"ok": True, "message": "구독 상태가 Premium으로 설정되었습니다."}
+    return {"ok": True, "message": "구독 상태가 Premium으로 설정되었습니다. (분석 30회/월)"}
 
 
 @router.post("/reset-account")

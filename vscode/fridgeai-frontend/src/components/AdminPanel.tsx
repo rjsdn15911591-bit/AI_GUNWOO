@@ -144,15 +144,15 @@ export default function AdminPanel() {
               />
               <AdminBtn
                 icon="⭐"
-                label="PRO 모드 전환"
-                sub="분석·레시피 한도를 99,999회로 설정"
+                label="관리자 풀 활성화"
+                sub="Premium 구독 + 분석·레시피 한도 99,999회"
                 loading={loading === 'set-pro'}
                 onClick={() => call('set-pro', 'set-pro')}
               />
               <AdminBtn
                 icon="💎"
-                label="프리미엄으로 변경"
-                sub="구독 상태를 Premium으로 설정 (30회/월)"
+                label="Premium 구독만 설정"
+                sub="구독 Premium 전환 (한도 30회/월 유지)"
                 loading={loading === 'set-premium'}
                 onClick={() => call('set-premium', 'set-premium')}
               />
