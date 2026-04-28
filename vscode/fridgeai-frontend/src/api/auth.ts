@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const api = axios.create({
+export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '',
   withCredentials: true,
   timeout: 10000,
@@ -13,11 +13,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !error.config._retry && !isAuthCheck) {
       error.config._retry = true
       try {
-        await axios.post(
-          `/auth/refresh`,
-          {},
-          { withCredentials: true }
-        )
+        await api.post('/auth/refresh')
         return api(error.config)
       } catch {
         if (window.location.pathname !== '/') {

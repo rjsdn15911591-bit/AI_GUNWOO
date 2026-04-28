@@ -215,6 +215,14 @@ async def ai_generate_recipe(
     db: AsyncSession = Depends(get_db),
 ):
     """선택한 요리의 전체 레시피 생성"""
+    quota = await get_quota_status(str(current_user.id), db)
+    if quota["recipe_remaining"] <= 0:
+        raise HTTPException(
+            status_code=402,
+            detail=f"AI 레시피 생성 한도({quota['recipe_limit']}회)를 초과했습니다. "
+                   f"다음 달 {quota['reset_date'][:10]}에 초기화됩니다.",
+        )
+
     all_ingredients = await _get_fridge_ingredients(current_user, db)
     ingredients_str = _build_ingredient_string(all_ingredients)
     preference_str = _build_preference_string(body.food_types, body.custom_type, body.tastes)
@@ -242,6 +250,9 @@ async def ai_generate_recipe(
         recipe_data = json.loads(response.choices[0].message.content)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"AI 레시피 생성에 실패했습니다: {str(e)}")
+
+    await check_and_increment_quota(str(current_user.id), db, feature='recipe')
+    await db.commit()
 
     steps = recipe_data.get("steps", [])
     return {

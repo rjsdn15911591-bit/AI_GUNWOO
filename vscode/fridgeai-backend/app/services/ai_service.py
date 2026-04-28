@@ -157,9 +157,4 @@ async def analyze_image(image_bytes: bytes, content_type: str = "image/jpeg") ->
         response_format={"type": "json_object"},
     )
     raw_content = response.choices[0].message.content
-    finish_reason = response.choices[0].finish_reason
-    print(f"[AI DEBUG] finish_reason={finish_reason}")
-    print(f"[AI DEBUG] raw={raw_content[:800] if raw_content else 'None'}")
-    result = parse_ai_response(raw_content)
-    print(f"[AI DEBUG] parsed items count={len(result)}")
-    return result
+    return parse_ai_response(raw_content)

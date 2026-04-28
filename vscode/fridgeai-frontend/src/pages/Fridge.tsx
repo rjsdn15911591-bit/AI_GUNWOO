@@ -46,7 +46,7 @@ function getIngredientMeta(name: string): IngredientMeta {
     return { category: 'meat_fish', storage: '냉장', shortShelf: true, spoilage: true }
   if (/건멸치|마른멸치|멸치포|건새우|건오징어|건어물|북어포|황태/.test(n))
     return { category: 'grain', storage: '실온', shortShelf: false, spoilage: false }
-  if (/우유|두유|요거트|요구르트|치즈|버터|생크림|크림치즈|모차렐라|파르메산|그뤼에르|리코타|브리치즈|슬라이스치즈|아이스크림외/.test(n))
+  if (/우유|두유|요거트|요구르트|치즈|버터|생크림|크림치즈|모차렐라|파르메산|그뤼에르|리코타|브리치즈|슬라이스치즈|아이스크림/.test(n))
     return { category: 'dairy', storage: '냉장', shortShelf: true, spoilage: true }
   if (/딸기|체리|블루베리|라즈베리|복숭아|자두|수박|멜론|아보카도|바나나|무화과/.test(n))
     return { category: 'fruit', storage: '냉장', shortShelf: true, spoilage: true }

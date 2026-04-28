@@ -6,7 +6,7 @@ import type { DetectedIngredient } from '../types'
 import { useQuotaStore } from '../store/quotaStore'
 import { getQuotaStatus } from '../api/recipes'
 
-const MAX_IMAGES = 2
+const MAX_IMAGES = 3
 
 interface ImageItem {
   file: File

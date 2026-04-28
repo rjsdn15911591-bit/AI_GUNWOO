@@ -10,11 +10,11 @@ from app.models.user import User
 from app.models.fridge import Refrigerator, Ingredient
 from app.models.usage import MonthlyUsage
 from app.models.subscription import Subscription
+from app.core.config import settings
 from app.services.quota_service import get_current_year_month, ADMIN_UNLIMITED
 
 router = APIRouter()
 
-ADMIN_SECRET = "060227"
 FEATURES = ['analysis', 'recipe']
 
 
@@ -23,7 +23,7 @@ class AdminRequest(BaseModel):
 
 
 def _verify(secret: str):
-    if secret != ADMIN_SECRET:
+    if not settings.ADMIN_SECRET or secret != settings.ADMIN_SECRET:
         raise HTTPException(status_code=403, detail="인증 실패")
 
 

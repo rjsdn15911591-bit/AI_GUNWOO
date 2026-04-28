@@ -36,18 +36,25 @@ async def health():
     return {"status": "ok", "service": settings.APP_NAME}
 
 
-_image_cache: dict[str, tuple[bytes, str]] = {}  # 메모리 캐시: url -> (content, content_type)
+_image_cache: dict[str, tuple[bytes, str]] = {}  # LRU 캐시: url -> (content, content_type)
+_CACHE_MAX = 200
+
+def _cache_put(url: str, content: bytes, content_type: str):
+    if url in _image_cache:
+        del _image_cache[url]
+    elif len(_image_cache) >= _CACHE_MAX:
+        _image_cache.pop(next(iter(_image_cache)))  # 가장 오래된 항목 제거 (LRU)
+    _image_cache[url] = (content, content_type)
 
 @app.get("/api/v1/image-proxy", tags=["image"])
 async def image_proxy(url: str = Query(...)):
-    """외부 이미지를 프록시 + 메모리 캐시 (CORB 방지, 렉 감소)"""
+    """외부 이미지를 프록시 + LRU 메모리 캐시 (CORB 방지, 렉 감소)"""
     from urllib.parse import urlparse
     allowed_hosts = ["upload.wikimedia.org", "images.pexels.com", "pixabay.com"]
     host = urlparse(url).netloc
     if not any(host.endswith(h) for h in allowed_hosts):
         return Response(status_code=403)
 
-    # 메모리 캐시 히트 → 즉시 반환 (네트워크 요청 없음)
     if url in _image_cache:
         content, content_type = _image_cache[url]
         return Response(
@@ -66,9 +73,7 @@ async def image_proxy(url: str = Query(...)):
             if resp.status_code != 200:
                 return Response(status_code=resp.status_code)
             content_type = resp.headers.get("content-type", "image/jpeg")
-            # 메모리 캐시 저장 (최대 300개, ~30MB 상한)
-            if len(_image_cache) < 300:
-                _image_cache[url] = (resp.content, content_type)
+            _cache_put(url, resp.content, content_type)
             return Response(
                 content=resp.content,
                 media_type=content_type,
