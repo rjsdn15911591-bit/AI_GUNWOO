@@ -157,6 +157,17 @@ export default function AdminPanel() {
                 onClick={() => call('set-premium', 'set-premium')}
               />
               <AdminBtn
+                icon="🔽"
+                label="Free로 전환"
+                sub="구독을 Free로 강제 다운그레이드"
+                danger
+                loading={loading === 'set-free'}
+                onClick={async () => {
+                  if (!confirm('구독을 Free로 전환하시겠습니까?')) return
+                  await call('set-free', 'set-free')
+                }}
+              />
+              <AdminBtn
                 icon="🗑️"
                 label="계정 정보 초기화"
                 sub="냉장고 재료 + 사용량 전체 삭제"

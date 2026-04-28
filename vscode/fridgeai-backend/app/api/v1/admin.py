@@ -65,7 +65,7 @@ async def set_pro(
     _verify(body.secret)
     year_month = get_current_year_month()
     now = datetime.now(timezone.utc)
-    far_future = datetime(2099, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
+    far_future = datetime(2099, 6, 1, 0, 0, 0, tzinfo=timezone.utc)
 
     # 1) 구독을 Premium으로 설정
     result = await db.execute(
@@ -127,7 +127,8 @@ async def set_premium(
     )
     sub = result.scalar_one_or_none()
 
-    far_future = datetime(2099, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
+    # 2099-12-31 15:00 UTC = KST 2100-01-01 00:00 버그 방지 → 2099-06-01 사용
+    far_future = datetime(2099, 6, 1, 0, 0, 0, tzinfo=timezone.utc)
     now = datetime.now(timezone.utc)
 
     if sub:
@@ -147,6 +148,28 @@ async def set_premium(
 
     await db.commit()
     return {"ok": True, "message": "구독 상태가 Premium으로 설정되었습니다. (분석 30회/월)"}
+
+
+@router.post("/set-free")
+async def set_free(
+    body: AdminRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """구독을 Free로 강제 전환"""
+    _verify(body.secret)
+
+    result = await db.execute(
+        select(Subscription).where(Subscription.user_id == current_user.id).limit(1)
+    )
+    sub = result.scalar_one_or_none()
+    if sub:
+        sub.status = "expired"
+        sub.plan_type = "free"
+        sub.updated_at = datetime.now(timezone.utc)
+        await db.commit()
+
+    return {"ok": True, "message": "구독이 Free로 전환되었습니다."}
 
 
 @router.post("/reset-account")
