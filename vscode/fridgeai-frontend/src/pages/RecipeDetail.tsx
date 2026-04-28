@@ -55,7 +55,7 @@ export default function RecipeDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F9F8F5' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'transparent' }}>
         <div className="text-center">
           <div className="text-4xl mb-3">🍽️</div>
           <p className="text-sm" style={{ color: '#888780' }}>레시피를 불러오는 중...</p>
@@ -66,7 +66,7 @@ export default function RecipeDetail() {
 
   if (!recipe) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center" style={{ background: '#F9F8F5' }}>
+      <div className="min-h-screen flex flex-col items-center justify-center" style={{ background: 'transparent' }}>
         <p style={{ color: '#888780' }}>레시피를 찾을 수 없습니다</p>
         <Link to="/recipes" className="mt-4 text-sm font-medium" style={{ color: '#1D9E75' }}>← 레시피 목록</Link>
       </div>
@@ -77,7 +77,7 @@ export default function RecipeDetail() {
   const heroImage: string | null = proxyImageUrl(recipe.image ?? extraImage)
 
   return (
-    <div className="min-h-screen" style={{ background: '#F9F8F5' }}>
+    <div className="min-h-screen" style={{ background: 'transparent' }}>
 
       {/* ── Header ── */}
       <div

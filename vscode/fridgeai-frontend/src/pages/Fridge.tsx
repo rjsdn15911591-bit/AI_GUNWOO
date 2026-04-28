@@ -248,7 +248,7 @@ export default function Fridge() {
   const total = fridge?.ingredients.length ?? 0
 
   return (
-    <div className="min-h-screen" style={{ background: '#EDE9E1' }}>
+    <div className="min-h-screen" style={{ background: 'transparent' }}>
 
       {/* ── Header ── */}
       <div

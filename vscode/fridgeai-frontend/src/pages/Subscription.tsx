@@ -37,7 +37,7 @@ export default function SubscriptionPage() {
   const isPremium = sub?.plan_type === 'premium'
 
   return (
-    <div className="min-h-screen" style={{ background: '#EDE9E1' }}>
+    <div className="min-h-screen" style={{ background: 'transparent' }}>
 
       {/* ── Header ── */}
       <div className="px-5 py-4 flex items-center" style={{ background: '#0D1F1A', position: 'relative' }}>

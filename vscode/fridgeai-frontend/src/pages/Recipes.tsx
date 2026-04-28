@@ -139,7 +139,7 @@ export default function Recipes() {
   const displayed = filtered.slice(0, displayCount)
 
   return (
-    <div className="min-h-screen" style={{ background: '#EDE9E1' }}>
+    <div className="min-h-screen" style={{ background: 'transparent' }}>
 
       {/* ── Header ── */}
       <div
