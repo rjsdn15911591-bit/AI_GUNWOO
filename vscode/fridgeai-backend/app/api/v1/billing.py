@@ -55,17 +55,19 @@ async def cancel_subscription(
     if not sub or sub.plan_type != "premium" or sub.status not in ("active",):
         raise HTTPException(status_code=400, detail="활성 프리미엄 구독이 없습니다.")
 
-    if not sub.polar_subscription_id:
-        raise HTTPException(status_code=400, detail="Polar 구독 ID가 없습니다.")
+    from datetime import datetime, timezone
+    now = datetime.now(timezone.utc)
 
-    try:
-        await billing_service.cancel_subscription(sub.polar_subscription_id)
-    except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Polar.sh 취소 요청 실패: {e}")
+    # Polar 구독 ID가 있으면 Polar API로 취소, 없으면(관리자 설정) DB만 변경
+    if sub.polar_subscription_id:
+        try:
+            await billing_service.cancel_subscription(sub.polar_subscription_id)
+        except Exception as e:
+            raise HTTPException(status_code=502, detail=f"Polar.sh 취소 요청 실패: {e}")
 
     sub.status = "canceled"
-    from datetime import datetime, timezone
-    sub.updated_at = datetime.now(timezone.utc)
+    sub.canceled_at = now
+    sub.updated_at = now
     await db.commit()
 
     return {"status": "canceled", "message": "구독이 취소되었습니다. 현재 기간 종료까지 프리미엄 혜택이 유지됩니다."}
