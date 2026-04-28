@@ -3,28 +3,23 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { getGoogleLoginUrl } from '../api/auth'
 
-const LANDING_BG = ['/bg-landing1.jpg', '/bg-landing2.jpg']
-
-function LandingBg() {
+function PanelSlideshow({ images }: { images: string[] }) {
   const [current, setCurrent] = useState(0)
   useEffect(() => {
-    const t = setInterval(() => setCurrent(c => (c + 1) % LANDING_BG.length), 6000)
+    const t = setInterval(() => setCurrent(c => (c + 1) % images.length), 6000)
     return () => clearInterval(t)
-  }, [])
+  }, [images.length])
   return (
     <>
-      {LANDING_BG.map((src, i) => (
+      {images.map((src, i) => (
         <div key={src} style={{
-          position: 'fixed', inset: 0,
+          position: 'absolute', inset: 0,
           backgroundImage: `url(${src})`,
           backgroundSize: 'cover', backgroundPosition: 'center',
-          filter: 'blur(8px)', transform: 'scale(1.1)',
-          opacity: i === current ? 0.4 : 0,
+          opacity: i === current ? 1 : 0,
           transition: 'opacity 2.5s ease-in-out',
-          zIndex: 0,
         }} />
       ))}
-      <div style={{ position: 'fixed', inset: 0, background: 'rgba(237,233,225,0.68)', zIndex: 0 }} />
     </>
   )
 }
@@ -85,14 +80,12 @@ export default function Landing() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'transparent',
+      background: '#EDE9E1',
       padding: 14,
       boxSizing: 'border-box',
       display: 'flex',
       flexDirection: 'column',
-      position: 'relative',
     }}>
-      <LandingBg />
 
       {/* ── 3분할 그리드 ── */}
       <div style={{
@@ -102,8 +95,6 @@ export default function Landing() {
         gap: 10,
         flex: 1,
         minHeight: 'calc(100vh - 28px)',
-        position: 'relative',
-        zIndex: 1,
       }}>
 
         {/* ════════════════════════════
@@ -281,10 +272,8 @@ export default function Landing() {
           position: 'relative',
           borderRadius: 14,
           overflow: 'hidden',
-          backgroundImage: `url(${PHOTO_TOP})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
         }}>
+          <PanelSlideshow images={[PHOTO_TOP, '/bg-landing1.jpg']} />
           {/* 다크 그라디언트 오버레이 */}
           <div style={{
             position: 'absolute', inset: 0,
@@ -332,10 +321,8 @@ export default function Landing() {
           position: 'relative',
           borderRadius: 14,
           overflow: 'hidden',
-          backgroundImage: `url(${PHOTO_BTM})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
         }}>
+          <PanelSlideshow images={[PHOTO_BTM, '/bg-landing2.jpg']} />
           {/* 다크 그라디언트 오버레이 */}
           <div style={{
             position: 'absolute', inset: 0,
