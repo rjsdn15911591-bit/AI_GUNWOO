@@ -6,7 +6,7 @@ import type { DetectedIngredient } from '../types'
 import { useQuotaStore } from '../store/quotaStore'
 import { getQuotaStatus } from '../api/recipes'
 
-const MAX_IMAGES = 3
+const MAX_IMAGES = 2
 
 interface ImageItem {
   file: File
@@ -102,7 +102,7 @@ export default function Analyze() {
       await bulkAddIngredients(items.map((i) => ({ name: i.name, quantity: i.quantity ?? undefined, unit: i.unit ?? undefined })))
       navigate('/fridge')
     } catch {
-      setError('냉장고 반영에 실패했습니다.')
+      setError('냉장고 반영에 실패했습니다. 다시 시도해주세요.')
     } finally {
       setApplying(false)
     }

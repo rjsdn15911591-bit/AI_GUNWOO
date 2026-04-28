@@ -363,7 +363,7 @@ export default function Fridge() {
                   { label: '🧊냉동', bg: 'rgba(100,130,220,0.12)', color: '#4A6BC9' },
                   { label: '⏰단기', bg: 'rgba(250,199,117,0.2)', color: '#9A7A2A' },
                   { label: '⚡부패주의', bg: 'rgba(220,80,80,0.1)', color: '#C0392B' },
-                  { label: '🚨유효기한임박', bg: 'rgba(220,80,80,0.1)', color: '#C0392B' },
+                  { label: '⚠️유효기한임박', bg: 'rgba(220,80,80,0.1)', color: '#C0392B' },
                 ].map(({ label, bg, color }) => (
                   <span key={label} className="text-xs px-2 py-0.5 rounded-full" style={{ background: bg, color }}>
                     {label}
@@ -479,10 +479,10 @@ export default function Fridge() {
                                       <span className="text-xs px-1.5 py-0.5 rounded-full" style={{ background: '#E1F5EE', color: '#1D9E75' }}>AI</span>
                                     )}
                                     {expired && (
-                                      <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(220,80,80,0.1)', color: '#C0392B' }}>🚨유효기한 만료</span>
+                                      <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(220,80,80,0.1)', color: '#C0392B' }}>⚠️유효기한 만료</span>
                                     )}
                                     {expiringSoon && !expired && (
-                                      <span className="text-xs px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(250,199,117,0.2)', color: '#9A7A2A' }}>🚨{daysLeft}일 남음</span>
+                                      <span className="text-xs px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(250,199,117,0.2)', color: '#9A7A2A' }}>⚠️{daysLeft}일 남음</span>
                                     )}
                                   </div>
 

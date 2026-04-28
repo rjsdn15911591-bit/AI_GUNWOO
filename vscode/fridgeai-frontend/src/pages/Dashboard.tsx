@@ -119,7 +119,7 @@ export default function Dashboard() {
                     : { background: '#F1EFE8', color: '#5F5E5A' }
                 }
               >
-                {quota.plan_type === 'premium' ? '⭐ Premium' : 'Free'}
+                {quota.plan_type === 'premium' ? '💎 Premium' : '무료'}
               </span>
             </div>
 

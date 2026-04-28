@@ -6,6 +6,7 @@ import type { Subscription } from '../types'
 export default function SubscriptionPage() {
   const [sub, setSub] = useState<Subscription | null>(null)
   const [loading, setLoading] = useState(true)
+  const [upgrading, setUpgrading] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
   const showSuccess = searchParams.get('success') === '1'
 
@@ -30,11 +31,13 @@ export default function SubscriptionPage() {
   }, [])
 
   const handleUpgrade = async () => {
+    setUpgrading(true)
     try {
       const resp = await api.post('/api/v1/billing/checkout')
       window.location.href = resp.data.checkout_url
     } catch {
       alert('결제 페이지 이동 중 오류가 발생했습니다.')
+      setUpgrading(false)
     }
   }
 
@@ -99,7 +102,7 @@ export default function SubscriptionPage() {
                 className="text-3xl font-bold"
                 style={{ color: isPremium ? '#5DCAA5' : '#1A1A1A', letterSpacing: '-0.03em' }}
               >
-                {isPremium ? '⭐ Premium' : '🆓 Free'}
+                {isPremium ? '💎 Premium' : '🆓 무료'}
               </p>
               {isPremium && sub?.current_period_end && (
                 <p className="text-sm mt-2" style={{ color: '#9FE1CB' }}>
@@ -126,7 +129,7 @@ export default function SubscriptionPage() {
                   <tr>
                     <th className="text-left pb-2 font-medium text-xs" style={{ color: '#888780' }}>기능</th>
                     <th className="text-center pb-2 font-medium text-xs" style={{ color: '#888780' }}>무료</th>
-                    <th className="text-center pb-2 font-semibold text-xs" style={{ color: '#1D9E75' }}>Premium ⭐</th>
+                    <th className="text-center pb-2 font-semibold text-xs" style={{ color: '#1D9E75' }}>Premium 💎</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -151,12 +154,13 @@ export default function SubscriptionPage() {
             {!isPremium ? (
               <button
                 onClick={handleUpgrade}
-                className="w-full py-4 rounded-2xl font-bold text-base transition-all"
-                style={{ background: '#1D9E75', color: '#fff', boxShadow: '0 4px 16px rgba(29,158,117,0.25)' }}
-                onMouseEnter={e => (e.currentTarget.style.background = '#17845F')}
-                onMouseLeave={e => (e.currentTarget.style.background = '#1D9E75')}
+                disabled={upgrading}
+                className="w-full py-4 rounded-2xl font-bold text-base transition-all disabled:opacity-70"
+                style={{ background: '#1D9E75', color: '#fff', boxShadow: '0 4px 16px rgba(29,158,117,0.25)', cursor: upgrading ? 'not-allowed' : 'pointer' }}
+                onMouseEnter={e => { if (!upgrading) e.currentTarget.style.background = '#17845F' }}
+                onMouseLeave={e => { if (!upgrading) e.currentTarget.style.background = '#1D9E75' }}
               >
-                🚀 프리미엄으로 업그레이드
+                {upgrading ? '결제 페이지로 이동 중...' : '💎 프리미엄으로 업그레이드'}
               </button>
             ) : sub?.status === 'active' ? (
               <button

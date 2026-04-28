@@ -40,14 +40,16 @@ async def _merge_or_add(
     unit: str | None,
     source: str,
     db: AsyncSession,
+    expiry_date=None,
 ) -> Ingredient:
-    """동의어 정규화 후 같은 이름이 있으면 수량 합산, 없으면 새로 추가"""
+    """동의어 정규화 후 같은 이름 + 같은 유효기한이면 수량 합산, 다르면 새로 추가"""
     normalized = normalize_name(name)
 
     existing = await db.execute(
         select(Ingredient).where(
             Ingredient.refrigerator_id == fridge_id,
             Ingredient.name == normalized,
+            Ingredient.expiry_date == expiry_date,  # 유효기한 다르면 별개 재료
         )
     )
     ing = existing.scalar_one_or_none()
@@ -66,6 +68,7 @@ async def _merge_or_add(
             quantity=Decimal(str(quantity)) if quantity is not None else None,
             unit=unit,
             source=source,
+            expiry_date=expiry_date,
         )
         db.add(new_ing)
         return new_ing
@@ -95,7 +98,7 @@ async def add_ingredient(
 ):
     fridge = await _get_fridge(current_user, db)
     ingredient = await _merge_or_add(
-        fridge.id, body.name, body.quantity, body.unit, "manual", db
+        fridge.id, body.name, body.quantity, body.unit, "manual", db, expiry_date=body.expiry_date
     )
     await db.commit()
     await db.refresh(ingredient)
