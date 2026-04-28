@@ -99,17 +99,40 @@ function BackgroundSlideshow() {
   )
 }
 
+function PageLoadingScreen() {
+  return (
+    <div style={{
+      minHeight: '100vh', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      background: 'transparent', gap: 24, position: 'relative', zIndex: 1,
+    }}>
+      <div style={{ display: 'flex', gap: 6 }}>
+        {[0, 1, 2].map((i) => (
+          <span key={i} style={{
+            width: 8, height: 8, borderRadius: '50%', background: '#1D9E75',
+            animation: 'prigiopulse 1.2s ease-in-out infinite',
+            animationDelay: `${i * 0.2}s`,
+            display: 'inline-block',
+          }} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, initialized } = useAuthStore()
   if (!initialized) return <LoadingScreen />
   if (!user) return <Navigate to="/" replace />
   return (
-    <Suspense fallback={<LoadingScreen />}>
+    <>
       <BackgroundSlideshow />
-      <div style={{ position: 'relative', zIndex: 1 }}>
-        {children}
-      </div>
-    </Suspense>
+      <Suspense fallback={<PageLoadingScreen />}>
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          {children}
+        </div>
+      </Suspense>
+    </>
   )
 }
 
