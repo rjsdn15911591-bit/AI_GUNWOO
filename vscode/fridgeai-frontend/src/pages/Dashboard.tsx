@@ -26,7 +26,23 @@ export default function Dashboard() {
   ]
 
   return (
-    <div className="min-h-screen" style={{ background: '#EDE9E1' }}>
+    <div className="min-h-screen relative" style={{ background: '#EDE9E1' }}>
+      {/* 배경 이미지 */}
+      <div style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundImage: 'url(/bg-market.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center 40%',
+        filter: 'blur(6px)',
+        transform: 'scale(1.08)',
+        opacity: 0.18,
+        zIndex: 0,
+      }} />
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(237,233,225,0.78)', zIndex: 0 }} />
+
+      {/* ── 콘텐츠 래퍼 ── */}
+      <div style={{ position: 'relative', zIndex: 1 }}>
 
       {/* ── Header ── */}
       <div
@@ -181,6 +197,7 @@ export default function Dashboard() {
           ))}
         </div>
       </div>
+      </div> {/* 콘텐츠 래퍼 닫기 */}
     </div>
   )
 }
