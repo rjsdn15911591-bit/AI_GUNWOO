@@ -1,7 +1,33 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { getGoogleLoginUrl } from '../api/auth'
+
+const LANDING_BG = ['/bg-landing1.jpg', '/bg-landing2.jpg']
+
+function LandingBg() {
+  const [current, setCurrent] = useState(0)
+  useEffect(() => {
+    const t = setInterval(() => setCurrent(c => (c + 1) % LANDING_BG.length), 6000)
+    return () => clearInterval(t)
+  }, [])
+  return (
+    <>
+      {LANDING_BG.map((src, i) => (
+        <div key={src} style={{
+          position: 'fixed', inset: 0,
+          backgroundImage: `url(${src})`,
+          backgroundSize: 'cover', backgroundPosition: 'center',
+          filter: 'blur(8px)', transform: 'scale(1.1)',
+          opacity: i === current ? 0.4 : 0,
+          transition: 'opacity 2.5s ease-in-out',
+          zIndex: 0,
+        }} />
+      ))}
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(237,233,225,0.68)', zIndex: 0 }} />
+    </>
+  )
+}
 
 const PHOTO_TOP = '/food-top.jpg'
 const PHOTO_BTM =
@@ -59,12 +85,14 @@ export default function Landing() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#EDE9E1',
+      background: 'transparent',
       padding: 14,
       boxSizing: 'border-box',
       display: 'flex',
       flexDirection: 'column',
+      position: 'relative',
     }}>
+      <LandingBg />
 
       {/* ── 3분할 그리드 ── */}
       <div style={{
@@ -74,6 +102,8 @@ export default function Landing() {
         gap: 10,
         flex: 1,
         minHeight: 'calc(100vh - 28px)',
+        position: 'relative',
+        zIndex: 1,
       }}>
 
         {/* ════════════════════════════
