@@ -17,7 +17,16 @@ router = APIRouter()
 
 GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
 GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
-GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
+
+
+def _cookie_kwargs() -> dict:
+    """프론트·백엔드가 다른 도메인이므로 SameSite=None; Secure=True 필수."""
+    is_prod = settings.APP_ENV == "production"
+    return {
+        "httponly": True,
+        "secure": is_prod,
+        "samesite": "none" if is_prod else "lax",
+    }
 
 
 @router.get("/google/login", response_model=GoogleLoginResponse)
@@ -29,8 +38,7 @@ async def google_login():
         "scope": "openid email profile",
         "access_type": "offline",
     }
-    url = GOOGLE_AUTH_URL + "?" + urlencode(params)
-    return {"authorization_url": url}
+    return {"authorization_url": GOOGLE_AUTH_URL + "?" + urlencode(params)}
 
 
 @router.get("/google/callback")
@@ -55,7 +63,7 @@ async def google_callback(
                 detail=f"Google token error: {token_data.get('error', 'unknown')} — {token_data.get('error_description', '')}",
             )
         userinfo_resp = await client.get(
-            GOOGLE_USERINFO_URL,
+            "https://www.googleapis.com/oauth2/v3/userinfo",
             headers={"Authorization": f"Bearer {token_data['access_token']}"},
         )
         userinfo = userinfo_resp.json()
@@ -81,31 +89,15 @@ async def google_callback(
         RefreshToken(
             user_id=user.id,
             token_hash=hashed_refresh,
-            expires_at=datetime.now(timezone.utc)
-            + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
+            expires_at=datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
         )
     )
     await db.commit()
 
-    is_secure = settings.APP_ENV == "production"
+    ck = _cookie_kwargs()
     redirect = RedirectResponse(url=f"{settings.FRONTEND_URL}/dashboard", status_code=302)
-    redirect.set_cookie(
-        "access_token",
-        access_token,
-        httponly=True,
-        secure=is_secure,
-        samesite="lax",
-        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-    )
-    redirect.set_cookie(
-        "refresh_token",
-        raw_refresh,
-        httponly=True,
-        secure=is_secure,
-        samesite="lax",
-        path="/auth/refresh",
-        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400,
-    )
+    redirect.set_cookie("access_token", access_token, max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60, **ck)
+    redirect.set_cookie("refresh_token", raw_refresh, path="/auth/refresh", max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400, **ck)
     return redirect
 
 
@@ -126,15 +118,10 @@ async def refresh_token(
     record = result.scalar_one_or_none()
     if not record or record.expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
         raise HTTPException(status_code=401, detail="Invalid refresh token")
+
     access_token = create_access_token(str(record.user_id))
-    response.set_cookie(
-        "access_token",
-        access_token,
-        httponly=True,
-        secure=True,
-        samesite="strict",
-        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-    )
+    ck = _cookie_kwargs()
+    response.set_cookie("access_token", access_token, max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60, **ck)
     return {"status": "ok"}
 
 
@@ -150,8 +137,9 @@ async def logout(
         .values(revoked=True)
     )
     await db.commit()
-    response.delete_cookie("access_token")
-    response.delete_cookie("refresh_token")
+    ck = _cookie_kwargs()
+    response.delete_cookie("access_token", **{k: v for k, v in ck.items() if k != "httponly"})
+    response.delete_cookie("refresh_token", **{k: v for k, v in ck.items() if k != "httponly"})
     return {"status": "ok"}
 
 
