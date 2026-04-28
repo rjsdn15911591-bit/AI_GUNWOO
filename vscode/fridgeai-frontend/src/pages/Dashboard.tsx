@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { useQuotaStore } from '../store/quotaStore'
@@ -13,7 +13,10 @@ export default function Dashboard() {
     getQuotaStatus().then(setQuota).catch(console.error)
   }, [])
 
+  const [loggingOut, setLoggingOut] = useState(false)
+
   const handleLogout = async () => {
+    setLoggingOut(true)
     await logout().catch(() => {})
     window.location.href = '/'
   }
@@ -47,12 +50,18 @@ export default function Dashboard() {
         </div>
         <button
           onClick={handleLogout}
+          disabled={loggingOut}
           className="text-xs font-medium px-3 py-1.5 rounded-lg transition-all"
-          style={{ color: '#9FE1CB', border: '1px solid rgba(93,202,165,0.25)' }}
-          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(93,202,165,0.1)')}
-          onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+          style={{
+            color: loggingOut ? 'rgba(159,225,203,0.5)' : '#9FE1CB',
+            border: '1px solid rgba(93,202,165,0.25)',
+            background: loggingOut ? 'rgba(93,202,165,0.15)' : 'transparent',
+            cursor: loggingOut ? 'not-allowed' : 'pointer',
+          }}
+          onMouseEnter={e => { if (!loggingOut) e.currentTarget.style.background = 'rgba(93,202,165,0.1)' }}
+          onMouseLeave={e => { if (!loggingOut) e.currentTarget.style.background = 'transparent' }}
         >
-          로그아웃
+          {loggingOut ? '로그아웃 중...' : '로그아웃'}
         </button>
       </div>
 
