@@ -18,7 +18,7 @@ async def create_checkout_url(user_id: str) -> str:
     }
     print(f"[Polar] checkout request product_id={settings.POLAR_PRODUCT_ID}", flush=True)
 
-    async with httpx.AsyncClient(timeout=10) as client:
+    async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
         resp = await client.post(
             f"{POLAR_API_BASE}/v1/checkouts",
             json=payload,
