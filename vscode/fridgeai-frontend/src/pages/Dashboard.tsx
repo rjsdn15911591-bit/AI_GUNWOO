@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
+import { useAuthStore } from '../store/authStore'
 import { useQuotaStore } from '../store/quotaStore'
 import { getQuotaStatus } from '../api/recipes'
 import { logout } from '../api/auth'
 
 export default function Dashboard() {
-  const { user } = useAuth()
+  const { user } = useAuthStore()
   const { quota, setQuota } = useQuotaStore()
 
   useEffect(() => {

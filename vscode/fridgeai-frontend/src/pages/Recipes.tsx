@@ -4,7 +4,8 @@ import { getRecommendations, getAICandidates, generateAIRecipeFromDish, getQuota
 import { getBookmarks, removeBookmark, type BookmarkedRecipe } from '../utils/bookmarks'
 import { fetchRecipeImages, proxyImageUrl } from '../utils/foodishImages'
 import { RECIPE_IMAGE_MAP } from '../utils/recipeImageMap'
-import type { Recipe, QuotaStatus } from '../types'
+import { useQuotaStore } from '../store/quotaStore'
+import type { Recipe } from '../types'
 
 type Category = '전체' | '한식' | '일식' | '중식' | '양식' | '저장됨'
 const CATEGORIES: Category[] = ['전체', '한식', '일식', '중식', '양식', '저장됨']
@@ -32,7 +33,7 @@ export default function Recipes() {
   const [aiCandidates, setAiCandidates] = useState<{ name: string; description: string }[]>([])
   const [aiRecipe, setAiRecipe] = useState<any>(null)
   const [aiError, setAiError] = useState<string | null>(null)
-  const [quota, setQuota] = useState<QuotaStatus | null>(null)
+  const { quota, setQuota } = useQuotaStore()
   const [displayCount, setDisplayCount] = useState(20)
   const [extraImages, setExtraImages] = useState<Record<string, string>>({})
 
@@ -54,7 +55,9 @@ export default function Recipes() {
       .catch((e) => { console.error(e); setRecipes([]) })
       .finally(() => setLoading(false))
     refreshBookmarks()
-    getQuotaStatus().then(setQuota).catch(console.error)
+    if (!useQuotaStore.getState().quota) {
+      getQuotaStatus().then(setQuota).catch(console.error)
+    }
   }, [])
 
   useEffect(() => { setDisplayCount(20) }, [activeCategory])
@@ -76,7 +79,10 @@ export default function Recipes() {
       })
       setAiCandidates(res.candidates)
       if (res.recipe_remaining !== undefined) {
-        setQuota((q) => q ? { ...q, recipe_remaining: res.recipe_remaining ?? 0, recipe_usage: q.recipe_limit - (res.recipe_remaining ?? 0) } : q)
+        const current = useQuotaStore.getState().quota
+        if (current) {
+          setQuota({ ...current, recipe_remaining: res.recipe_remaining ?? 0, recipe_usage: current.recipe_limit - (res.recipe_remaining ?? 0) })
+        }
       }
       setAiStep('candidates')
     } catch (err: any) {

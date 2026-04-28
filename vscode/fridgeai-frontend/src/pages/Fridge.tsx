@@ -226,17 +226,19 @@ export default function Fridge() {
   }
 
   const grouped = useMemo(() => {
-    if (!fridge) return new Map<CategoryId, Ingredient[]>()
-    const map = new Map<CategoryId, Ingredient[]>()
+    if (!fridge) return new Map<CategoryId, { ing: Ingredient; meta: IngredientMeta }[]>()
+    const map = new Map<CategoryId, { ing: Ingredient; meta: IngredientMeta }[]>()
     for (const cat of CATEGORIES) map.set(cat.id, [])
     for (const ing of fridge.ingredients) {
-      const meta = getIngredientMeta(ing.name)
-      const aiMeta = meta.category === 'other' ? aiCategories[ing.name] : undefined
-      const category = aiMeta?.category ?? meta.category
-      map.get(category)!.push(ing)
+      const base = getIngredientMeta(ing.name)
+      const aiMeta = base.category === 'other' ? aiCategories[ing.name] : undefined
+      const meta: IngredientMeta = aiMeta
+        ? { ...base, category: aiMeta.category, storage: aiMeta.storage ?? CATEGORY_DEFAULT_STORAGE[aiMeta.category] }
+        : base
+      map.get(meta.category)!.push({ ing, meta })
     }
     for (const [, arr] of map) {
-      arr.sort((a, b) => a.name.localeCompare(b.name, 'ko'))
+      arr.sort((a, b) => a.ing.name.localeCompare(b.ing.name, 'ko'))
     }
     return map
   }, [fridge, aiCategories])
@@ -392,17 +394,7 @@ export default function Fridge() {
 
                     {/* 재료 목록 */}
                     <div>
-                      {items.map((ing: Ingredient, idx: number) => {
-                        const meta = (() => {
-                          const base = getIngredientMeta(ing.name)
-                          const aiMeta = base.category === 'other' ? aiCategories[ing.name] : undefined
-                          if (!aiMeta) return base
-                          return {
-                            ...base,
-                            category: aiMeta.category,
-                            storage: aiMeta.storage ?? CATEGORY_DEFAULT_STORAGE[aiMeta.category],
-                          }
-                        })()
+                      {items.map(({ ing, meta }, idx: number) => {
                         const daysLeft = getDaysUntilExpiry(ing.expiry_date)
                         const expiringSoon = daysLeft !== null && daysLeft <= 7 && daysLeft >= 0
                         const expired = daysLeft !== null && daysLeft < 0

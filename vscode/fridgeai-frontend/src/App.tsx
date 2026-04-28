@@ -1,21 +1,24 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAuthStore } from './store/authStore'
 import { useAuth } from './hooks/useAuth'
 import Landing from './pages/Landing'
-import Dashboard from './pages/Dashboard'
-import Fridge from './pages/Fridge'
-import Analyze from './pages/Analyze'
-import Recipes from './pages/Recipes'
-import RecipeDetail from './pages/RecipeDetail'
-import Subscription from './pages/Subscription'
 import AdminPanel from './components/AdminPanel'
+
+const Dashboard    = lazy(() => import('./pages/Dashboard'))
+const Fridge       = lazy(() => import('./pages/Fridge'))
+const Analyze      = lazy(() => import('./pages/Analyze'))
+const Recipes      = lazy(() => import('./pages/Recipes'))
+const RecipeDetail = lazy(() => import('./pages/RecipeDetail'))
+const Subscription = lazy(() => import('./pages/Subscription'))
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
       staleTime: 30_000,
+      refetchOnWindowFocus: false,
     },
   },
 })
@@ -68,7 +71,7 @@ function LoadingScreen() {
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, initialized } = useAuthStore()
   if (!initialized) return <LoadingScreen />
-  return user ? <>{children}</> : <Navigate to="/" replace />
+  return user ? <Suspense fallback={<LoadingScreen />}>{children}</Suspense> : <Navigate to="/" replace />
 }
 
 function AuthInitializer() {

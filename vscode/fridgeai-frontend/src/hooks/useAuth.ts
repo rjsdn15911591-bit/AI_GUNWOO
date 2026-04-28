@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useAuthStore } from '../store/authStore'
 import { getMe } from '../api/auth'
-import axios from 'axios'
 
 const MAX_RETRIES = 3
 const RETRY_DELAY_MS = 3_000
