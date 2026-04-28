@@ -160,8 +160,8 @@ async def ai_get_candidates(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """냉장고 재료 + 선호 조건으로 후보 요리 3개 추천 (레시피 생성 횟수 1회 차감)"""
-    # 쿼터 확인
+    """냉장고 재료 + 선호 조건으로 후보 요리 3개 추천 (쿼터 미차감 — ai-generate 시 차감)"""
+    # 쿼터 잔여 확인만 (차감 안 함)
     quota = await get_quota_status(str(current_user.id), db)
     if quota["recipe_remaining"] <= 0:
         raise HTTPException(
@@ -196,15 +196,10 @@ async def ai_get_candidates(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"후보 요리 추천에 실패했습니다: {str(e)}")
 
-    # 성공 시 쿼터 차감
-    await check_and_increment_quota(str(current_user.id), db, feature='recipe')
-    await db.commit()
-
-    updated = await get_quota_status(str(current_user.id), db)
     return {
         "candidates": data.get("candidates", []),
-        "recipe_remaining": updated["recipe_remaining"],
-        "recipe_limit": updated["recipe_limit"],
+        "recipe_remaining": quota["recipe_remaining"],
+        "recipe_limit": quota["recipe_limit"],
     }
 
 

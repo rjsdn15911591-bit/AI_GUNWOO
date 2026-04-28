@@ -34,7 +34,7 @@ export default function Recipes() {
   const [aiRecipe, setAiRecipe] = useState<any>(null)
   const [aiError, setAiError] = useState<string | null>(null)
   const { quota, setQuota } = useQuotaStore()
-  const [displayCount, setDisplayCount] = useState(20)
+  const [displayCount, setDisplayCount] = useState(5)
   const [extraImages, setExtraImages] = useState<Record<string, string>>({})
 
   const navigate = useNavigate()
@@ -103,6 +103,11 @@ export default function Recipes() {
       })
       setAiRecipe(recipe)
       setAiStep('recipe')
+      // 레시피 생성 성공 시 쿼터 1 차감
+      const current = useQuotaStore.getState().quota
+      if (current && current.recipe_remaining > 0) {
+        setQuota({ ...current, recipe_remaining: current.recipe_remaining - 1, recipe_usage: current.recipe_usage + 1 })
+      }
     } catch (err: any) {
       setAiError(err?.response?.data?.detail ?? 'AI 레시피 생성에 실패했습니다.')
       setAiStep('candidates')
@@ -538,7 +543,7 @@ export default function Recipes() {
 
         {activeCategory !== '저장됨' && displayCount < filtered.length && (
           <button
-            onClick={() => setDisplayCount((n) => n + 20)}
+            onClick={() => setDisplayCount((n) => n + 5)}
             className="w-full mt-3 py-3 rounded-xl text-sm font-medium transition-all"
             style={{ border: '1px solid #D3D1C7', color: '#5F5E5A', background: '#fff' }}
           >

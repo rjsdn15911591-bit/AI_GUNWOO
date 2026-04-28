@@ -70,6 +70,17 @@ export default function Dashboard() {
         </div>
 
         {/* ── Quota Card ── */}
+        {!quota && (
+          <div className="rounded-2xl p-5 mb-5" style={{ background: '#fff', border: '0.5px solid #D3D1C7' }}>
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="h-3 w-32 rounded-full mb-2" style={{ background: '#F1EFE8', animation: 'prigiopulse 1.4s ease-in-out infinite' }} />
+                <div className="h-8 w-20 rounded-lg" style={{ background: '#F1EFE8', animation: 'prigiopulse 1.4s ease-in-out infinite' }} />
+              </div>
+              <div className="h-6 w-16 rounded-full" style={{ background: '#F1EFE8', animation: 'prigiopulse 1.4s ease-in-out infinite' }} />
+            </div>
+          </div>
+        )}
         {quota && (
           <div
             className="rounded-2xl p-5 mb-5"

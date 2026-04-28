@@ -126,7 +126,6 @@ export default function Fridge() {
   const [editQty, setEditQty] = useState('')
   const [editUnit, setEditUnit] = useState('')
   const [editExpiry, setEditExpiry] = useState('')
-  const [saving, setSaving] = useState(false)
   const [aiCategories, setAiCategories] = useState<Record<string, AIMeta>>(getCache)
 
   const [showAddForm, setShowAddForm] = useState(false)
@@ -160,13 +159,13 @@ export default function Fridge() {
       })
       setAddName(''); setAddQty(''); setAddUnit(''); setAddExpiry('')
       setShowAddForm(false)
-      load()
+      load(true) // 서버 ID 동기화 (로딩 화면 없이 조용히)
     } catch (e) { console.error(e) }
     finally { setAdding(false) }
   }
 
-  const load = () => {
-    setLoading(true)
+  const load = (silent = false) => {
+    if (!silent) setLoading(true)
     getFridge()
       .then((data) => {
         setFridge(data)
@@ -187,15 +186,16 @@ export default function Fridge() {
         }
       })
       .catch(console.error)
-      .finally(() => setLoading(false))
+      .finally(() => { if (!silent) setLoading(false) })
   }
 
   useEffect(() => { load() }, [])
 
   const handleDelete = async (id: string) => {
     if (!confirm('이 재료를 삭제하시겠습니까?')) return
-    await deleteIngredient(id).catch(console.error)
-    load()
+    // 낙관적 즉시 제거
+    setFridge((prev) => prev ? { ...prev, ingredients: prev.ingredients.filter((i) => i.id !== id) } : prev)
+    await deleteIngredient(id).catch(() => load()) // 실패 시 서버 상태로 복원
   }
 
   const startEdit = (ing: Ingredient) => {
@@ -208,16 +208,18 @@ export default function Fridge() {
   const cancelEdit = () => setEditingId(null)
 
   const saveEdit = async (id: string) => {
-    setSaving(true)
     const data = {
       quantity: editQty !== '' ? (Number(editQty) || null) : null,
       unit: editUnit.trim() !== '' ? editUnit.trim() : null,
       expiry_date: editExpiry || null,
     }
-    await updateIngredient(id, data).catch(console.error)
-    setSaving(false)
+    // 낙관적 즉시 반영
+    setFridge((prev) => prev ? {
+      ...prev,
+      ingredients: prev.ingredients.map((i) => i.id === id ? { ...i, ...data } as Ingredient : i),
+    } : prev)
     setEditingId(null)
-    load()
+    await updateIngredient(id, data).catch(() => load()) // 실패 시 서버 상태로 복원
   }
 
   const getDaysUntilExpiry = (expiry: string | null): number | null => {
@@ -425,11 +427,10 @@ export default function Fridge() {
                                 <div className="flex gap-2">
                                   <button
                                     onClick={() => saveEdit(ing.id)}
-                                    disabled={saving}
-                                    className="flex-1 text-sm py-2 rounded-lg font-semibold disabled:opacity-50 transition-all"
+                                    className="flex-1 text-sm py-2 rounded-lg font-semibold transition-all"
                                     style={{ background: '#1D9E75', color: '#fff' }}
                                   >
-                                    {saving ? '저장 중...' : '저장'}
+                                    저장
                                   </button>
                                   <button
                                     onClick={cancelEdit}

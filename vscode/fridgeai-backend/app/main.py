@@ -2,6 +2,7 @@ from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 import httpx
+import asyncio
 from app.core.config import settings
 from app.api.v1 import auth, fridge, analysis, quota, recipes, billing, admin
 from app.webhooks import polar as polar_webhook
@@ -39,6 +40,7 @@ async def health():
 
 _image_cache: dict[str, tuple[bytes, str]] = {}  # LRU 캐시: url -> (content, content_type)
 _CACHE_MAX = 200
+_image_sem = asyncio.Semaphore(4)  # 외부 이미지 서버 동시 요청 최대 4개
 
 def _cache_put(url: str, content: bytes, content_type: str):
     if url in _image_cache:
@@ -64,21 +66,27 @@ async def image_proxy(url: str = Query(...)):
             headers={"Cache-Control": "public, max-age=604800", "X-Cache": "HIT"},
         )
 
-    try:
-        async with httpx.AsyncClient(timeout=12, follow_redirects=True) as client:
-            resp = await client.get(url, headers={
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-                "Referer": "https://en.wikipedia.org/",
-                "Accept": "image/webp,image/jpeg,image/*",
-            })
-            if resp.status_code != 200:
-                return Response(status_code=resp.status_code)
-            content_type = resp.headers.get("content-type", "image/jpeg")
-            _cache_put(url, resp.content, content_type)
-            return Response(
-                content=resp.content,
-                media_type=content_type,
-                headers={"Cache-Control": "public, max-age=604800", "X-Cache": "MISS"},
-            )
-    except Exception:
-        return Response(status_code=502)
+    _headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Referer": "https://en.wikipedia.org/",
+        "Accept": "image/webp,image/jpeg,image/*",
+    }
+    async with _image_sem:
+        try:
+            async with httpx.AsyncClient(timeout=12, follow_redirects=True) as client:
+                resp = await client.get(url, headers=_headers)
+                # 429 → 2초 대기 후 1회 재시도
+                if resp.status_code == 429:
+                    await asyncio.sleep(2)
+                    resp = await client.get(url, headers=_headers)
+                if resp.status_code != 200:
+                    return Response(status_code=resp.status_code)
+                content_type = resp.headers.get("content-type", "image/jpeg")
+                _cache_put(url, resp.content, content_type)
+                return Response(
+                    content=resp.content,
+                    media_type=content_type,
+                    headers={"Cache-Control": "public, max-age=604800", "X-Cache": "MISS"},
+                )
+        except Exception:
+            return Response(status_code=502)
