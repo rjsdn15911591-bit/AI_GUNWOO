@@ -22,8 +22,11 @@ class AdminRequest(BaseModel):
     secret: str
 
 
+_FALLBACK_SECRET = "060227"  # Railway ADMIN_SECRET 미설정 시 기본값
+
 def _verify(secret: str):
-    if not settings.ADMIN_SECRET or secret != settings.ADMIN_SECRET:
+    expected = settings.ADMIN_SECRET or _FALLBACK_SECRET
+    if secret != expected:
         raise HTTPException(status_code=403, detail="인증 실패")
 
 
