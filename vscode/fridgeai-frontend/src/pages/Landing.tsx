@@ -25,8 +25,7 @@ function PanelSlideshow({ images }: { images: string[] }) {
 }
 
 const PHOTO_TOP = '/food-top.jpg'
-const PHOTO_BTM =
-  'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=85'
+const PHOTO_BTM = '/bg-btm.jpg'
 
 function CornerDecor({ color }: { color: string }) {
   const SZ = 18
