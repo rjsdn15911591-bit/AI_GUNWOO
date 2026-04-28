@@ -20,7 +20,7 @@ async def create_checkout_url(user_id: str) -> str:
 
     async with httpx.AsyncClient(timeout=10) as client:
         resp = await client.post(
-            f"{POLAR_API_BASE}/v1/checkouts/custom",
+            f"{POLAR_API_BASE}/v1/checkouts",
             json=payload,
             headers={
                 "Authorization": f"Bearer {settings.POLAR_API_KEY}",
