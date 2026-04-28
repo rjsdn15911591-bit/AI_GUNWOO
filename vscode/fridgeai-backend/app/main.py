@@ -17,7 +17,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_ORIGINS,
-    allow_origin_regex=r"https://ai-gunwoo-57yp.*\.vercel\.app",
+    allow_origin_regex=r"https://ai-gunwoo-.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH", "DELETE", "PUT"],
     allow_headers=["Content-Type", "Authorization"],
