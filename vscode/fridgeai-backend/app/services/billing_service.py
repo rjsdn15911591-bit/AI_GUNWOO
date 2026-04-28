@@ -16,7 +16,7 @@ async def create_checkout_url(user_id: str) -> str:
         "metadata": {"user_id": str(user_id)},
         "success_url": f"{settings.FRONTEND_URL}/subscription?success=1",
     }
-    logger.info(f"Polar checkout request: {payload}")
+    print(f"[Polar] checkout request product_id={settings.POLAR_PRODUCT_ID}", flush=True)
 
     async with httpx.AsyncClient(timeout=10) as client:
         resp = await client.post(
@@ -28,7 +28,7 @@ async def create_checkout_url(user_id: str) -> str:
             },
         )
 
-    logger.info(f"Polar checkout response: status={resp.status_code} body={resp.text}")
+    print(f"[Polar] checkout response: status={resp.status_code} body={resp.text}", flush=True)
     resp.raise_for_status()
     return resp.json()["url"]
 
