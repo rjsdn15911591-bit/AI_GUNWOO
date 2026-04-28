@@ -68,10 +68,34 @@ function LoadingScreen() {
   )
 }
 
+const BG_IMAGE = (
+  <>
+    <div style={{
+      position: 'fixed', inset: 0,
+      backgroundImage: 'url(/bg-market.jpg)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center 40%',
+      filter: 'blur(8px)',
+      transform: 'scale(1.1)',
+      opacity: 0.45,
+      zIndex: 0,
+    }} />
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(237,233,225,0.65)', zIndex: 0 }} />
+  </>
+)
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, initialized } = useAuthStore()
   if (!initialized) return <LoadingScreen />
-  return user ? <Suspense fallback={<LoadingScreen />}>{children}</Suspense> : <Navigate to="/" replace />
+  if (!user) return <Navigate to="/" replace />
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      {BG_IMAGE}
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        {children}
+      </div>
+    </Suspense>
+  )
 }
 
 function AuthInitializer() {
