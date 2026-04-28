@@ -90,7 +90,7 @@ function BackgroundSlideshow() {
           backgroundSize: 'cover', backgroundPosition: 'center 40%',
           filter: 'blur(8px)', transform: 'scale(1.1)',
           opacity: i === current ? 0.45 : 0,
-          transition: 'opacity 2.5s ease-in-out',
+          transition: 'opacity 3.75s ease-in-out',
           zIndex: 0,
         }} />
       ))}

@@ -17,7 +17,7 @@ function PanelSlideshow({ images }: { images: string[] }) {
           backgroundImage: `url(${src})`,
           backgroundSize: 'cover', backgroundPosition: 'center',
           opacity: i === current ? 1 : 0,
-          transition: 'opacity 2.5s ease-in-out',
+          transition: 'opacity 3.75s ease-in-out',
         }} />
       ))}
     </>
