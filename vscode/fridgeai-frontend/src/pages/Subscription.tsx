@@ -1,18 +1,32 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import api from '../api/auth'
 import type { Subscription } from '../types'
 
 export default function SubscriptionPage() {
   const [sub, setSub] = useState<Subscription | null>(null)
   const [loading, setLoading] = useState(true)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const showSuccess = searchParams.get('success') === '1'
 
-  useEffect(() => {
+  const fetchStatus = () => {
+    setLoading(true)
     api
       .get('/api/v1/billing/status')
       .then((r) => setSub(r.data))
       .catch(console.error)
       .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    fetchStatus()
+    if (showSuccess) {
+      const t = setTimeout(() => {
+        searchParams.delete('success')
+        setSearchParams(searchParams, { replace: true })
+      }, 5000)
+      return () => clearTimeout(t)
+    }
   }, [])
 
   const handleUpgrade = async () => {
@@ -28,7 +42,7 @@ export default function SubscriptionPage() {
     if (!confirm('구독을 취소하시겠습니까? 현재 결제 기간까지는 프리미엄 혜택이 유지됩니다.')) return
     try {
       await api.post('/api/v1/billing/cancel')
-      alert('구독 취소 요청이 접수되었습니다.')
+      fetchStatus()
     } catch {
       alert('취소 처리 중 오류가 발생했습니다.')
     }
@@ -54,6 +68,17 @@ export default function SubscriptionPage() {
           color: '#F1EFE8', letterSpacing: '-0.01em', whiteSpace: 'nowrap',
         }}>구독 관리</span>
       </div>
+
+      {/* ── 결제 성공 배너 ── */}
+      {showSuccess && (
+        <div
+          className="px-5 py-3 flex items-center gap-2 text-sm font-medium"
+          style={{ background: '#1D9E75', color: '#fff' }}
+        >
+          <span>✅</span>
+          <span>프리미엄 구독이 완료되었습니다! 웹훅 처리 후 플랜이 업데이트됩니다.</span>
+        </div>
+      )}
 
       <div className="p-5 max-w-lg mx-auto">
         {loading ? (

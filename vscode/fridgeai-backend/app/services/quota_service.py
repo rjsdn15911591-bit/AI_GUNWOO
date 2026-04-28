@@ -41,10 +41,11 @@ def get_next_month_reset(year_month: str) -> str:
 
 
 async def get_active_subscription(user_id, db: AsyncSession):
+    # canceled = 취소됐지만 기간 종료까지 premium 유지; past_due = 결제 실패지만 유예 중
     result = await db.execute(
         select(Subscription).where(
             Subscription.user_id == user_id,
-            Subscription.status == "active",
+            Subscription.status.in_(["active", "canceled", "past_due"]),
             Subscription.plan_type == "premium",
         )
     )

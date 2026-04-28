@@ -1,11 +1,9 @@
-import hmac
-import hashlib
-import base64
 import json
 from datetime import datetime, timezone
 from fastapi import APIRouter, Request, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from standardwebhooks import Webhook, WebhookVerificationError
 from app.core.config import settings
 from app.core.database import get_db
 from app.models.subscription import Subscription, WebhookEvent
@@ -14,21 +12,15 @@ from fastapi import Depends
 router = APIRouter()
 
 
-def verify_polar_signature(payload: bytes, webhook_id: str, webhook_timestamp: str, signature_header: str) -> bool:
-    """StandardWebhooks 스펙 서명 검증"""
-    if not settings.POLAR_WEBHOOK_SECRET:
-        return False
-    # 서명 대상: "{msg_id}.{timestamp}.{body}"
-    to_sign = f"{webhook_id}.{webhook_timestamp}.{payload.decode('utf-8')}"
-    expected = base64.b64encode(
-        hmac.new(settings.POLAR_WEBHOOK_SECRET.encode(), to_sign.encode(), hashlib.sha256).digest()
-    ).decode()
-    expected_header = f"v1,{expected}"
-    # 여러 서명이 공백으로 구분될 수 있음
-    for sig in signature_header.split(" "):
-        if hmac.compare_digest(sig, expected_header):
-            return True
-    return False
+def _get_webhook_client() -> Webhook:
+    """Polar.sh webhook 검증 클라이언트 (standardwebhooks 사용).
+    Polar 고유 prefix polar_whs_ → whsec_ 로 변환 후 전달."""
+    secret = settings.POLAR_WEBHOOK_SECRET
+    if not secret:
+        raise HTTPException(status_code=500, detail="POLAR_WEBHOOK_SECRET not configured")
+    if secret.startswith("polar_whs_"):
+        secret = "whsec_" + secret[len("polar_whs_"):]
+    return Webhook(secret)
 
 
 async def _upsert_subscription(data: dict, db: AsyncSession) -> None:
@@ -47,7 +39,8 @@ async def _upsert_subscription(data: dict, db: AsyncSession) -> None:
     }
     polar_status = data.get("status", "active")
     db_status = status_map.get(polar_status, polar_status)
-    plan_type = "free" if db_status in ("expired", "canceled") else "premium"
+    # canceled = 취소 요청됨, 기간 종료까지 premium 유지; expired = 즉시 free
+    plan_type = "free" if db_status == "expired" else "premium"
 
     period_start = data.get("current_period_start")
     period_end = data.get("current_period_end")
@@ -113,11 +106,12 @@ async def _handle_payment_failed(data: dict, db: AsyncSession) -> None:
 @router.post("/polar")
 async def polar_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     payload = await request.body()
-    webhook_id = request.headers.get("webhook-id", "")
-    webhook_timestamp = request.headers.get("webhook-timestamp", "")
-    signature_header = request.headers.get("webhook-signature", "")
+    headers = dict(request.headers)
 
-    if not verify_polar_signature(payload, webhook_id, webhook_timestamp, signature_header):
+    try:
+        wh = _get_webhook_client()
+        wh.verify(payload, headers)
+    except WebhookVerificationError:
         raise HTTPException(status_code=400, detail="Invalid signature")
 
     try:
@@ -126,7 +120,7 @@ async def polar_webhook(request: Request, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Invalid JSON")
 
     event_type = body.get("type", "")
-    event_id = body.get("id") or webhook_id
+    event_id = body.get("id") or headers.get("webhook-id", "")
     event_data = body.get("data", {})
 
     # 멱등성 보장: 이미 처리된 이벤트 무시
@@ -136,7 +130,6 @@ async def polar_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     if existing.scalar_one_or_none():
         return {"status": "already_processed"}
 
-    # 이벤트 저장
     event_record = WebhookEvent(
         provider="polar",
         event_type=event_type,
@@ -147,15 +140,11 @@ async def polar_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     db.add(event_record)
 
     try:
-        if event_type in ("subscription.created", "subscription.updated", "subscription.activated"):
-            await _upsert_subscription(event_data, db)
-        elif event_type == "subscription.canceled":
-            # canceled: 기간 종료까지 premium 유지, status만 canceled로
+        if event_type in ("subscription.created", "subscription.updated", "subscription.activated", "subscription.canceled"):
             await _upsert_subscription(event_data, db)
         elif event_type == "subscription.revoked":
             await _handle_revoked(event_data, db)
         elif event_type in ("order.paid", "payment.succeeded"):
-            # 결제 성공 시 subscription 상태 active 보장
             sub_data = event_data.get("subscription") or event_data
             if sub_data.get("id"):
                 await _upsert_subscription(sub_data, db)
@@ -168,5 +157,4 @@ async def polar_webhook(request: Request, db: AsyncSession = Depends(get_db)):
         event_record.error_message = str(e)
 
     await db.commit()
-    # Polar.sh에는 항상 200 반환 (재전송 방지)
     return {"status": "ok"}
