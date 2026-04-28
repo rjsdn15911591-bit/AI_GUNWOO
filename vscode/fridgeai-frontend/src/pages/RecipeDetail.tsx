@@ -57,7 +57,7 @@ export default function RecipeDetail() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#F9F8F5' }}>
         <div className="text-center">
-          <div className="text-4xl mb-3">🍳</div>
+          <div className="text-4xl mb-3">🍽️</div>
           <p className="text-sm" style={{ color: '#888780' }}>레시피를 불러오는 중...</p>
         </div>
       </div>
@@ -109,7 +109,7 @@ export default function RecipeDetail() {
         </div>
       ) : (
         <div className="w-full h-36 flex items-center justify-center" style={{ background: isAI ? '#E1F5EE' : '#F1EFE8' }}>
-          <span className="text-6xl">{isAI ? '🤖' : '🍽️'}</span>
+          <span className="text-6xl">{isAI ? '✨' : '🍽️'}</span>
         </div>
       )}
 

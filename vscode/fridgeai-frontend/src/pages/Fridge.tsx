@@ -344,7 +344,7 @@ export default function Fridge() {
               className="inline-block mt-4 text-sm font-semibold px-4 py-2 rounded-xl transition-all"
               style={{ background: '#1D9E75', color: '#fff' }}
             >
-              📷 AI 사진 분석
+              📸 AI 사진 분석
             </Link>
           </div>
         ) : (

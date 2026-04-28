@@ -20,9 +20,9 @@ export default function Dashboard() {
 
   const quickActions = [
     { to: '/fridge',       icon: '🧊', label: '냉장고 관리',  primary: false },
-    { to: '/analyze',      icon: '📷', label: 'AI 사진 분석', primary: true  },
-    { to: '/recipes',      icon: '🍳', label: '레시피 추천',  primary: false },
-    { to: '/subscription', icon: '⭐', label: '구독 관리',    primary: false },
+    { to: '/analyze',      icon: '📸', label: 'AI 사진 분석', primary: true  },
+    { to: '/recipes',      icon: '🍽️', label: '레시피 추천',  primary: false },
+    { to: '/subscription', icon: '💎', label: '구독 관리',    primary: false },
   ]
 
   return (

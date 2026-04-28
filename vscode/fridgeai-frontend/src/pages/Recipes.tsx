@@ -193,7 +193,7 @@ export default function Recipes() {
               className="w-full py-3 px-5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ background: 'linear-gradient(135deg, #1D9E75, #17845F)', color: '#fff', boxShadow: '0 2px 12px rgba(29,158,117,0.25)' }}
             >
-              <span>🤖</span>
+              <span>✨</span>
               <span>AI 맞춤 레시피 생성</span>
               {quota && (
                 <span
@@ -217,7 +217,7 @@ export default function Recipes() {
             <div className="rounded-2xl p-4" style={{ background: '#fff', border: '1.5px solid #1D9E75' }}>
               <div className="flex justify-between items-center mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">🤖</span>
+                  <span className="text-lg">✨</span>
                   <h3 className="font-bold text-sm" style={{ color: '#1A1A1A' }}>AI 레시피 설정</h3>
                 </div>
                 <button onClick={resetAI} className="text-lg leading-none" style={{ color: '#888780' }}>✕</button>
@@ -374,7 +374,7 @@ export default function Recipes() {
 
         {loading && (
           <div className="text-center py-16">
-            <div className="text-4xl mb-3">🍳</div>
+            <div className="text-4xl mb-3">🍽️</div>
             <p className="text-sm" style={{ color: '#888780' }}>냉장고 재료로 만들 수 있는 레시피를 찾는 중...</p>
           </div>
         )}
