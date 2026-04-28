@@ -73,39 +73,27 @@ const BG_INTERVAL = 6000 // 6초마다 전환
 
 function BackgroundSlideshow() {
   const [current, setCurrent] = useState(0)
-  const [prev, setPrev] = useState<number | null>(null)
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setPrev(current)
       setCurrent((c) => (c + 1) % BG_IMAGES.length)
     }, BG_INTERVAL)
     return () => clearInterval(timer)
-  }, [current])
+  }, [])
 
   return (
     <>
-      {/* 이전 사진 (페이드 아웃) */}
-      {prev !== null && (
-        <div key={`prev-${prev}`} style={{
+      {BG_IMAGES.map((src, i) => (
+        <div key={src} style={{
           position: 'fixed', inset: 0,
-          backgroundImage: `url(${BG_IMAGES[prev]})`,
+          backgroundImage: `url(${src})`,
           backgroundSize: 'cover', backgroundPosition: 'center 40%',
           filter: 'blur(8px)', transform: 'scale(1.1)',
-          opacity: 0, transition: 'opacity 1.5s ease',
+          opacity: i === current ? 0.45 : 0,
+          transition: 'opacity 2.5s ease-in-out',
           zIndex: 0,
         }} />
-      )}
-      {/* 현재 사진 (페이드 인) */}
-      <div key={`cur-${current}`} style={{
-        position: 'fixed', inset: 0,
-        backgroundImage: `url(${BG_IMAGES[current]})`,
-        backgroundSize: 'cover', backgroundPosition: 'center 40%',
-        filter: 'blur(8px)', transform: 'scale(1.1)',
-        opacity: 0.45, transition: 'opacity 1.5s ease',
-        zIndex: 0,
-      }} />
-      {/* 오버레이 */}
+      ))}
       <div style={{ position: 'fixed', inset: 0, background: 'rgba(237,233,225,0.65)', zIndex: 0 }} />
     </>
   )
