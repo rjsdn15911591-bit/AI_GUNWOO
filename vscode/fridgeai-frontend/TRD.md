@@ -706,7 +706,28 @@ JSON만 반환하세요.
 - 표시 항목: 칼로리(kcal) · 단백질(g) · 탄수화물(g) · 지방(g) — 1인분 기준
 - 조건부 렌더링: `nutrition` 필드 자체가 없거나 모든 값이 `null`이면 섹션 숨김
 - 프론트엔드 TypeScript 타입: `nutrition?: { calories?: number; protein?: number; carbs?: number; fat?: number }`
-- 백엔드 레시피 생성 프롬프트에서 `nutrition` 필드 반환 시 자동 표시 (현재 AI가 반환하는 경우에만 표시)
+
+**영양 정보 정확도 보장 (2-layer 설계)**
+
+1. **프롬프트 레이어**: GPT-4o 시스템 프롬프트에 100g당 표준 영양값 참조표 포함  
+   - 모차렐라 300kcal/22g단백/2g탄수/22g지방, 페퍼로니 494kcal 등 주요 재료 20+ 종 명시  
+   - 재료별 실제 중량(g) × 표준값으로 계산 후 합산 지시 (감각 추정 금지)  
+   - 조리 손실(구이·볶음 15~20% 감소) 적용 지시  
+   - 1인분 적정 분량 상한 명시 (치즈 최대 120g, 오일류 최대 20ml 등)
+
+2. **서버 레이어**: GPT 응답 후 백엔드에서 항상 재계산  
+   ```python
+   calories = protein * 4 + carbs * 4 + fat * 9  # 수식 일치 100% 보장
+   ```
+   - GPT가 calories를 독립 추정하더라도 서버 값으로 덮어씀
+
+### J5. 부족 재료 쿠팡 검색 링크 (Recipes)
+
+- 레시피 카드의 "🛒 부족 재료" 태그를 `<a>` 엘리먼트로 구현
+- 클릭 시 `https://www.coupang.com/np/search?q={encodeURIComponent(재료명)}` 새 탭 오픈
+- `rel="noopener noreferrer"` 보안 속성 적용
+- `e.stopPropagation()` — 레시피 카드 클릭 이벤트와 충돌 방지
+- 안내 문구: "🛒 부족 재료" 제목 우측에 "클릭 시 쿠팡 구매 페이지로 이동" 회색 소자 표시
 
 ---
 

@@ -264,7 +264,8 @@ Prigio — 냉장고 · AI · 레시피 3요소 압축
 | 구성 요소 | 스펙 |
 |-----------|------|
 | 음식 유형 선택 | 한식·양식·중식·일식·기타 + 직접 입력 / 복수 선택 가능 |
-| 맛 선택 | 담백한·매운·달콤한·짭짤한·간단한 등 / 복수 선택 |
+| 맛 선택 | 매운음식 🌶️ / 단음식 🍯 / 짠음식 🧂 / **다이어트 🥗** / 복수 선택 가능 |
+| 맛 버튼 스타일 | 선택 시: bg `#FAC775` + text `#1A1A1A` / 미선택 시: bg `#F1EFE8` + text `#5F5E5A` |
 | 1단계: 후보 카드 | GPT-4o가 생성한 요리 후보 3개 / 카드: 요리명 + 간단 설명 + 난이도 |
 | 후보 카드 hover | border-color Green 전환 200ms + translateY(-2px) |
 | 2단계: 상세 레시피 | 선택한 요리의 재료 목록 + 단계별 조리법 + 팁 |
@@ -272,6 +273,30 @@ Prigio — 냉장고 · AI · 레시피 3요소 압축
 | 매칭률 카운트업 | 숫자 카운트업 500ms ease-out |
 | 북마크 | 카드 우상단 북마크 아이콘 / **localStorage 저장** (서버 API 없음) / 저장 시 Green 채움 애니메이션 |
 | 레시피 쿼터 | recipe 잔여 횟수 표시 / 0회 시 생성 버튼 비활성화 + 업그레이드 안내 |
+| **부족 재료 쿠팡 링크** | "🛒 부족 재료" 제목 우측에 "클릭 시 쿠팡 구매 페이지로 이동" 안내 문구(12px, `#B8A090`) |
+| 부족 재료 태그 스타일 | `<a>` 엘리먼트 / bg `rgba(250,199,117,0.15)` + text `#9A7A2A` + border `0.5px #FAC775` + radius-full / textDecoration: none |
+| 부족 재료 클릭 동작 | `target="_blank"` 새 탭 / `https://www.coupang.com/np/search?q={encodeURIComponent(재료명)}` |
+
+### 6-6. 레시피 상세 `/recipes/:id`
+
+| 구성 요소 | 스펙 |
+|-----------|------|
+| 기본 구성 | 기본 정보 카드 + 저장 버튼 + 재료 + 조리 방법 + 요리 팁 + **영양 정보** |
+| 영양 정보 섹션 | 팁 섹션 아래 배치 / 조건부 표시 (`nutrition` 필드 존재 + 값이 하나 이상 있을 때만) |
+| 영양 정보 레이아웃 | 2×2 그리드 카드 / 칼로리🔥 · 단백질💪 · 탄수화물🌾 · 지방🫒 |
+| 각 항목 카드 | bg `#F5F3EE` / border `0.5px #E8E4DC` / radius 12px / 항목명(12px Gray) + 수치(16px Bold) + 단위(12px) |
+| 헤더 | "📊 영양 정보" + "(1인분 기준)" 보조 텍스트 |
+
+### 6-1-1. 구독 관리 `/subscription`
+
+| 구성 요소 | 스펙 |
+|-----------|------|
+| 현재 플랜 카드 | Free: White bg + Gray border / Premium: Deep Night bg + Green border |
+| **30일 무료 체험 프로모 카드** | 비프리미엄 사용자 전용 / 플랜 비교 표 위에 배치 |
+| 프로모 카드 스타일 | bg `#FFFFFF` / border `1.5px #1D9E75` / radius 16px (그라디언트 금지) |
+| 프로모 카드 구성 | 🎁 아이콘(40×40px, Ice `#E1F5EE` bg) + 제목(Prigio Green `#1D9E75`) + 설명(Text Secondary `#5F5E5A`) + "★ 체험 기간 내 취소 시 요금 없음" 뱃지(Ice bg + Green text, radius-full) |
+| 플랜 비교 표 | 무료 vs Premium 기능 비교 / 헤더: Gray vs Green |
+| CTA | 비프리미엄: Primary Green 업그레이드 버튼 / Premium+active: 취소 버튼(Ghost) |
 
 ---
 

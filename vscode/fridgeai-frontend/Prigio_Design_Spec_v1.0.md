@@ -223,12 +223,12 @@ Prigio — 냉장고 · AI · 레시피 3요소 압축
 |-----------|------|
 | 현재 플랜 카드 | Free: White bg + Gray border / Premium: Deep Night bg + Green border |
 | **30일 무료 체험 프로모 카드** | 비프리미엄 사용자 전용 / 플랜 비교 표 위에 배치 |
-| 프로모 카드 스타일 | bg `linear-gradient(135deg, #0D1F1A, #133027)` / border `1.5px #1D9E75` / radius 16px |
-| 프로모 카드 구성 | 🎁 아이콘(40×40px, Green 반투명 bg) + 제목(Mint `#5DCAA5`) + 설명(Mint 70% opacity) + 경고 문구(Amber `#FAC775`) |
+| 프로모 카드 스타일 | bg `#FFFFFF` / border `1.5px #1D9E75` / radius 16px (그라디언트 금지) |
+| 프로모 카드 구성 | 🎁 아이콘(40×40px, Ice `#E1F5EE` bg) + 제목(Prigio Green `#1D9E75`) + 설명(Text Secondary `#5F5E5A`) + "★ 체험 기간 내 취소 시 요금 없음" 뱃지(Ice bg + Green text, radius-full) |
 | 플랜 비교 표 | 무료 vs Premium 기능 비교 / 헤더: Gray vs Green / 데이터 행: 교번 Ice bg |
 | CTA | 비프리미엄: Primary Green 업그레이드 버튼 / Premium+active: 취소 버튼(Ghost) |
 
-> **30일 무료 체험 프로모 카드 디자인 의도**: 구독 전환율을 높이기 위해 결제 부담을 낮추는 "첫 30일 무료" 혜택을 비프리미엄 사용자에게 항상 노출합니다. Deep Night 배경에 Prigio Green 테두리를 사용하여 일반 정보 카드와 시각적으로 구분되는 "특별 혜택" 맥락을 전달하고, Amber 강조 문구("체험 기간 내 취소 시 요금 없음")로 리스크 해소 메시지를 추가하여 전환 장벽을 낮춥니다.
+> **30일 무료 체험 프로모 카드 디자인 의도**: 구독 전환율을 높이기 위해 결제 부담을 낮추는 "첫 30일 무료" 혜택을 비프리미엄 사용자에게 항상 노출합니다. White 배경 + Prigio Green 테두리로 일반 카드와 시각적으로 구분되는 "특별 혜택" 맥락을 전달합니다. 아이콘 배경은 Ice(`#E1F5EE`), 제목은 Green(`#1D9E75`), 본문은 Text Secondary(`#5F5E5A`)로 가독성을 확보하며, "체험 기간 내 취소 시 요금 없음" 문구를 Ice+Green pill 뱃지로 강조하여 전환 장벽을 낮춥니다. (이전 Dark gradient 배경 → White로 변경 — 디자인 가이드 "그라디언트 금지" 준수)
 
 ### 6-2. 대시보드 `/dashboard`
 
@@ -299,6 +299,9 @@ Prigio — 냉장고 · AI · 레시피 3요소 압축
 | 매칭률 카운트업 | 숫자 카운트업 500ms ease-out |
 | 북마크 | 카드 우상단 북마크 아이콘 / **localStorage 저장** (서버 API 없음) / 저장 시 Green 채움 애니메이션 |
 | 레시피 쿼터 | recipe 잔여 횟수 표시 / 0회 시 생성 버튼 비활성화 + 업그레이드 안내 |
+| **부족 재료 쿠팡 링크** | "🛒 부족 재료" 제목 우측에 "클릭 시 쿠팡 구매 페이지로 이동" 안내 문구(12px, `#B8A090`) |
+| 부족 재료 태그 스타일 | `<a>` 엘리먼트 / bg `rgba(250,199,117,0.15)` + text `#9A7A2A` + border `0.5px #FAC775` + radius-full / textDecoration: none |
+| 부족 재료 클릭 동작 | `target="_blank"` 새 탭 / `https://www.coupang.com/np/search?q={encodeURIComponent(재료명)}` |
 
 > **"다이어트" 맛 필터 디자인 의도**: 건강·식단 관리 페르소나(이수현, 29세)의 핵심 니즈인 저칼로리·고단백 레시피 필터링을 지원합니다. 기존 맛 필터(매운/단/짠)가 풍미 선호를 다루는 반면, "다이어트"는 영양 목적을 표현하므로 동일한 Amber 스타일을 유지하면서 🥗 이모지로 시각적으로 구분합니다.
 
