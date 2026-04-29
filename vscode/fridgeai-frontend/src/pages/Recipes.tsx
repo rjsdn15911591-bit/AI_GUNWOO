@@ -525,7 +525,10 @@ export default function Recipes() {
 
                   {r.missing_ingredients?.length > 0 && (
                     <div className="mt-1.5">
-                      <p className="text-xs font-semibold mb-1" style={{ color: '#9A7A2A' }}>🛒 부족 재료</p>
+                      <div className="flex items-baseline gap-1.5 mb-1">
+                        <p className="text-xs font-semibold" style={{ color: '#9A7A2A' }}>🛒 부족 재료</p>
+                        <p className="text-xs" style={{ color: '#B8A090' }}>클릭 시 쿠팡 구매 페이지로 이동</p>
+                      </div>
                       <div className="flex flex-wrap gap-1">
                         {r.missing_ingredients.map((ing: string) => (
                           <a
