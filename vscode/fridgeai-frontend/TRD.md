@@ -567,6 +567,21 @@ async def check_and_increment_quota(
 | `payment.failed` | `past_due` | premium (유예) |
 | `payment.succeeded` (재결제) | `active` | premium |
 
+### H0. ⚠️ 현재 구현 제한사항 — 실결제 미완성
+
+> Polar.sh 및 Stripe는 **해외 계좌(또는 해외 법인) 보유자**만 실제 수납이 가능합니다.
+>
+> | 항목 | 상태 |
+> |------|------|
+> | 결제창(체크아웃 페이지) 진입 | ✅ 정상 동작 |
+> | 카드 정보 입력 UI | ✅ Polar.sh 페이지 표시 |
+> | 실제 결제 완료 및 웹훅 수신 | ❌ 해외 계좌 미보유로 불가 |
+> | 프리미엄 플랜 부여 방식 | 관리자 수동 부여(`/api/v1/admin`) |
+>
+> **해결 방안 (Phase 2)**
+> - 국내 PG사(토스페이먼츠, NHN KCP 등) SDK 연동
+> - 또는 해외 법인 계좌 확보 후 Polar.sh/Stripe 실결제 활성화
+
 ### H3. 멱등성 보장
 
 ```python
@@ -996,7 +1011,7 @@ FREE_PLAN_MONTHLY_LIMIT=5
 | M3: 냉장고 CRUD | 식재료 추가/수정/삭제/조회 API + UI, 11종 카테고리 | ✅ 완료 |
 | M4: AI 분석 | 이미지 업로드(2장), GPT-4o 통합, 쿼터 로직, 결과 UI | ✅ 완료 |
 | M5: 레시피 추천 | AI 2단계 생성(후보→상세), 큐레이션 레시피 | ✅ 완료 |
-| M6: 구독/결제 | Polar.sh 체크아웃, 웹훅 처리, 구독 상태 UI | ✅ 완료 |
+| M6: 구독/결제 | Polar.sh 체크아웃, 웹훅 처리, 구독 상태 UI | ⚠️ UI 완료 (실결제 불가) |
 | M7: 관리자 | AdminPanel, /api/v1/admin, ADMIN_UNLIMITED | ✅ 완료 |
 | M8: Phase 2 | 분석 이력, ML/DL 기능 고도화 | 🔜 예정 |
 
