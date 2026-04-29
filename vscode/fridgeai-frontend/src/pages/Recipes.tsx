@@ -528,9 +528,17 @@ export default function Recipes() {
                       <p className="text-xs font-semibold mb-1" style={{ color: '#9A7A2A' }}>🛒 부족 재료</p>
                       <div className="flex flex-wrap gap-1">
                         {r.missing_ingredients.map((ing: string) => (
-                          <span key={ing} className="text-xs px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(250,199,117,0.15)', color: '#9A7A2A', border: '0.5px solid #FAC775' }}>
+                          <a
+                            key={ing}
+                            href={`https://www.coupang.com/np/search?q=${encodeURIComponent(ing)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-xs px-1.5 py-0.5 rounded-full"
+                            style={{ background: 'rgba(250,199,117,0.15)', color: '#9A7A2A', border: '0.5px solid #FAC775', textDecoration: 'none' }}
+                          >
                             {ing}
-                          </span>
+                          </a>
                         ))}
                       </div>
                     </div>
