@@ -1,15 +1,16 @@
-# 🧊 냉장고 AI 식재료 관리 & 레시피 추천 서비스
+# Prigio (프리지오) — 냉장고 AI 식재료 관리 & 레시피 추천 서비스
 ## TRD (기술 요구사항 문서)
 
-> 버전 1.0 | 내부 배포용 기밀 문서  
-> 본 문서는 프론트엔드·백엔드·AI 엔지니어·DevOps가 실무 기준으로 활용하는 Single Source of Truth입니다.
+> 버전 2.0 | 내부 배포용 기밀 문서  
+> 본 문서는 **현재 구현 코드를 기준**으로 최신화된 Single Source of Truth입니다.  
+> 마지막 업데이트: 2026-04
 
 ---
 
 ## 목차
 
 - [A. 기술 개요](#a-기술-개요)
-- [B. 추천 최종 기술 스택](#b-추천-최종-기술-스택)
+- [B. 확정 기술 스택](#b-확정-기술-스택)
 - [C. 아키텍처 설계](#c-아키텍처-설계)
 - [D. 데이터 모델 / DB 스키마](#d-데이터-모델--db-스키마)
 - [E. API 설계](#e-api-설계)
@@ -37,12 +38,12 @@
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │  브라우저 (React SPA on Vercel)                               │
-│    ↕ HTTPS REST API                                          │
-│  백엔드 (FastAPI on Railway)                                  │
-│    ↕ PostgreSQL (Supabase)                                   │
-│    ↕ 외부 AI API (OpenAI GPT-4o Vision)                      │
+│    ↕ HTTPS REST API (axios + withCredentials)                 │
+│  백엔드 (FastAPI on Railway — Docker)                         │
+│    ↕ PostgreSQL (Supabase)                                    │
+│    ↕ 외부 AI API (OpenAI GPT-4o Vision)                       │
 │    ↕ Polar.sh (구독 결제 웹훅)                                │
-│    ↕ Google OAuth 2.0                                        │
+│    ↕ Google OAuth 2.0                                         │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -50,42 +51,43 @@
 
 | 컴포넌트 | 기술 | 책임 |
 |---------|------|------|
-| 프론트엔드 | React + Vite + TS + Tailwind | UI 렌더링, 상태 관리, API 호출 |
-| 백엔드 | FastAPI (Python) | 비즈니스 로직, 인증, 쿼터, AI 오케스트레이션 |
-| 데이터베이스 | PostgreSQL (Supabase 권장) | 영구 데이터 저장, 트랜잭션 |
-| 외부 AI API | OpenAI GPT-4o Vision (권장) | 이미지 분석, 식재료 인식 |
+| 프론트엔드 | React 18 + Vite + TypeScript + Tailwind | UI 렌더링, 상태 관리, API 호출 |
+| 백엔드 | FastAPI (Python 3.11) | 비즈니스 로직, 인증, 쿼터, AI 오케스트레이션 |
+| 데이터베이스 | PostgreSQL (Supabase) | 영구 데이터 저장, 트랜잭션 |
+| 외부 AI API | OpenAI GPT-4o Vision | 이미지 분석(식재료 인식), 레시피 생성 |
 | 결제 | Polar.sh | 구독 관리, 결제 처리, 웹훅 |
 | 인증 | Google OAuth 2.0 | 사용자 신원 확인 |
 | 프론트 배포 | Vercel | 정적 자산 CDN 배포 |
-| 백엔드 배포 | Railway (권장) | FastAPI 컨테이너 호스팅 |
+| 백엔드 배포 | Railway (Docker) | FastAPI 컨테이너 호스팅 |
 
 ---
 
-## B. 추천 최종 기술 스택
+## B. 확정 기술 스택
 
 | 영역 | 기술 선택 | 선택 이유 |
 |------|---------|---------|
 | 프론트엔드 프레임워크 | React 18 + Vite + TypeScript | 빠른 HMR, 타입 안전성, 생태계 |
-| 스타일링 | Tailwind CSS v3 | 유틸리티 클래스, 빠른 프로토타이핑 |
+| 스타일링 | Tailwind CSS + inline style | 유틸리티 클래스, 빠른 프로토타이핑 |
 | 상태 관리 | Zustand + React Query | 가벼운 전역 상태 + 서버 상태 캐싱 |
-| 백엔드 프레임워크 | FastAPI + Python 3.11+ | 타입 힌트, 비동기, OpenAPI 자동 생성 |
-| 데이터베이스 | PostgreSQL 15 (Supabase) | 안정성, JSON 지원, 무료 티어 충분 |
+| 라우터 | React Router v7 | SPA 클라이언트 라우팅 |
+| 백엔드 프레임워크 | FastAPI + Python 3.11 | 타입 힌트, 비동기, OpenAPI 자동 생성 |
+| 데이터베이스 | PostgreSQL (Supabase) | 안정성, JSON 지원, 무료 티어 충분 |
 | ORM | SQLAlchemy 2.0 + Alembic | 마이그레이션 관리, 비동기 지원 |
-| 인증 토큰 | JWT (RS256) + HttpOnly Cookie | 보안성, CSRF 방어 |
-| 외부 AI API | OpenAI GPT-4o Vision | 식재료 인식 정확도 최고, API 안정성 |
-| 레시피 소스 | Spoonacular API + 자체 큐레이션 DB | 검증된 레시피, 상업적 허용 |
-| 결제 | Polar.sh | 요구사항 확정 |
-| 프론트 배포 | Vercel | 요구사항 확정 |
-| 백엔드 배포 | Railway | Docker 지원, 저렴, GitHub 연동 용이 |
-| 파일 임시 처리 | 메모리 내 처리 (tmpfile) | 이미지 영구 저장 안 함 |
-| 모니터링 | Sentry + Logfire | 오류 추적, APM |
+| 인증 토큰 | JWT (RS256) + HttpOnly Cookie | 보안성, XSS 방어 |
+| AI API | OpenAI GPT-4o Vision | 식재료 인식 + 레시피 생성 통합, API 안정성 |
+| 레시피 소스 | OpenAI GPT-4o (AI 직접 생성) | Spoonacular 미사용, 한국 요리 전문성, 재료 기반 맞춤 생성 |
+| 결제 | Polar.sh | 구독 관리, 웹훅 HMAC 검증 |
+| 프론트 배포 | Vercel | GitHub 자동 배포, CDN |
+| 백엔드 배포 | Railway | Docker 지원, GitHub 연동, 합리적 가격 |
+| API 통신 | axios (withCredentials: true) | CORS 쿠키 전송, 인터셉터 |
+| 파일 임시 처리 | 메모리 내 처리 | 이미지 영구 저장 안 함 |
 
 > **Railway 백엔드 배포 선택 이유**
 > - Docker 컨테이너 네이티브 지원 → FastAPI 그대로 배포 가능
-> - GitHub 연동 자동 배포 (push → 자동 빌드/배포)
-> - 월 $5 정도의 합리적인 가격
+> - GitHub 연동 자동 배포 (push → 자동 빌드/배포, railway.toml 설정)
+> - 합리적인 가격
 > - 환경변수 UI 관리 편리
-> - 대안: Render.com (유사 기능, 콜드 스타트 있음), Fly.io (더 복잡)
+> - `railway.toml`에 `[build] builder = "dockerfile"` 설정으로 커스텀 Dockerfile 사용
 
 ---
 
@@ -93,38 +95,47 @@
 
 ### C1. 인증 흐름 (Google OAuth + JWT)
 
-1. 사용자 → 프론트엔드: "Google로 로그인" 클릭
+1. 사용자 → 프론트엔드: "Google로 로그인" 클릭 (랜딩 페이지 또는 대시보드 리다이렉트 시)
 2. 프론트엔드 → 백엔드: `GET /auth/google/login` → Google OAuth URL 반환
 3. 브라우저 → Google: OAuth 동의 화면
 4. Google → 백엔드: Authorization Code 전달 (`redirect_uri`)
 5. 백엔드 → Google: code 교환 → `access_token`, `id_token` 수신
-6. 백엔드: `id_token` 검증 → 사용자 조회/생성 → JWT(Access + Refresh) 발급
-7. 백엔드 → 브라우저: HttpOnly Secure Cookie에 토큰 저장
-8. 이후 모든 API 요청: Cookie의 Access Token으로 인증
+6. 백엔드: `id_token` 검증 → 사용자 조회/생성 → JWT(Access + Refresh) 발급 (RS256)
+7. 백엔드 → 브라우저: **HttpOnly Secure SameSite=None Cookie**에 토큰 저장  
+   _(Vercel 프론트 + Railway 백엔드 간 크로스 도메인 구조이므로 SameSite=None 필수)_
+8. 이후 모든 API 요청: axios `withCredentials: true` → Cookie 자동 포함
 
-### C2. AI 분석 흐름
+### C2. AI 분석 흐름 (최대 이미지 2장)
 
-1. 프론트엔드: 이미지 파일 선택 및 FormData 생성
+1. 프론트엔드: 이미지 파일 1~2장 선택 및 FormData 생성
 2. `POST /api/v1/analysis/upload` → 백엔드 수신
-3. 백엔드: 쿼터 확인 (`usage_count < limit`)
-4. 백엔드: 이미지 임시 처리 → OpenAI Vision API 호출
-5. OpenAI: 식재료 목록 JSON 반환
-6. 백엔드: 결과 정규화 (표준 재료명 매핑)
-7. 백엔드: DB에 `usage_count + 1` (트랜잭션)
+3. 백엔드: 쿼터 확인 (`feature='analysis'`, `usage_count < limit`)
+4. 백엔드: 각 이미지 base64 변환 → **asyncio.gather**로 병렬 GPT-4o Vision API 호출
+5. OpenAI: 이미지별 식재료 목록 JSON 반환 (90초 타임아웃)
+6. 백엔드: 결과 병합 → **이름 기반 중복 제거** (`ingredient_normalizer.normalize_name()`)
+7. 백엔드: 성공 시에만 `usage_count + 1` 증가 (실패/타임아웃 시 차감 없음)
 8. 백엔드: 정규화된 재료 목록 반환
-9. 프론트엔드: 수정 가능한 결과 UI 표시
+9. 프론트엔드: 수정 가능한 결과 UI 표시 (인라인 텍스트 편집)
 10. 사용자 확인 → `POST /api/v1/fridge/ingredients/bulk` → 냉장고 저장
 
-### C3. 결제/구독 흐름
+### C3. 레시피 생성 흐름 (AI 2단계)
 
-1. 사용자: 업그레이드 버튼 클릭
+1. 사용자: 음식 유형, 맛 선택
+2. `POST /api/v1/recipes/ai/candidates` → GPT-4o가 냉장고 재료 기반 요리 후보 3개 제안
+3. 사용자: 후보 중 1개 선택
+4. `POST /api/v1/recipes/ai/generate` → GPT-4o가 선택한 요리의 상세 레시피 생성
+5. 프론트엔드: 상세 레시피 표시
+
+### C4. 결제/구독 흐름
+
+1. 사용자: 구독 관리 페이지에서 업그레이드 버튼 클릭
 2. 프론트엔드 → 백엔드: `POST /api/v1/billing/checkout`
 3. 백엔드 → Polar.sh: 체크아웃 세션 생성 (`user_id` 메타데이터 포함)
 4. 백엔드 → 프론트엔드: Polar.sh 체크아웃 URL 반환
 5. 브라우저: Polar.sh 결제 페이지로 이동
 6. 결제 완료 → Polar.sh: 백엔드 웹훅 엔드포인트로 이벤트 전송
-7. 백엔드: 웹훅 서명 검증 → `subscription` 상태 DB 업데이트
-8. 사용자: 다음 API 요청부터 유료 혜택 적용
+7. 백엔드: 웹훅 HMAC 서명 검증 → `subscription` 상태 DB 업데이트
+8. 사용자: 다음 API 요청부터 유료 혜택 적용 (analysis 30회 + recipe 30회)
 
 ---
 
@@ -190,17 +201,22 @@ CREATE INDEX idx_subscriptions_polar_subscription_id ON subscriptions(polar_subs
 CREATE TABLE monthly_usage (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    year_month      VARCHAR(7) NOT NULL,   -- 'YYYY-MM' (KST 기준)
+    year_month      VARCHAR(7) NOT NULL,          -- 'YYYY-MM' (KST 기준)
+    feature         VARCHAR(50) NOT NULL,          -- 'analysis' | 'recipe'
     usage_count     INTEGER NOT NULL DEFAULT 0,
     limit_count     INTEGER NOT NULL DEFAULT 5,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-    CONSTRAINT unique_user_year_month UNIQUE (user_id, year_month)
+    CONSTRAINT unique_user_year_month_feature UNIQUE (user_id, year_month, feature)
 );
 
 CREATE INDEX idx_monthly_usage_user_year_month ON monthly_usage(user_id, year_month);
 
+-- 플랜별 limit_count
+-- Free:    analysis=5,  recipe=10
+-- Premium: analysis=30, recipe=30
+-- Admin:   analysis=99999, recipe=99999 (ADMIN_UNLIMITED)
 -- 예시: year_month = '2025-01' (KST 기준 달 계산)
 ```
 
@@ -228,6 +244,7 @@ CREATE TABLE ingredients (
     quantity        DECIMAL(10,2),
     unit            VARCHAR(50),             -- kg, g, 개, 봉지 등
     expiry_date     DATE,
+    category        VARCHAR(50),             -- vegetable, fruit, meat_fish, dairy, cooked, egg_convenience, ready_made, sauce, beverage, grain, other
     source          VARCHAR(50) NOT NULL DEFAULT 'manual',  -- manual, ai_analysis
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -237,24 +254,10 @@ CREATE INDEX idx_ingredients_refrigerator_id ON ingredients(refrigerator_id);
 CREATE INDEX idx_ingredients_expiry_date ON ingredients(expiry_date);
 ```
 
-### D7. analysis_history 테이블
+> **식재료 카테고리 11종**  
+> `vegetable`(채소), `fruit`(과일), `meat_fish`(육류·수산), `dairy`(유제품), `cooked`(조리식품), `egg_convenience`(달걀·간편식), `ready_made`(즉석·통조림), `sauce`(소스·양념), `beverage`(음료), `grain`(곡물·면), `other`(기타)
 
-```sql
-CREATE TABLE analysis_history (
-    id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id                 UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    detected_ingredients    JSONB NOT NULL,   -- 인식된 재료 목록 (이미지 비저장)
-    ai_raw_response         JSONB,            -- AI 원본 응답 (디버깅용)
-    status                  VARCHAR(50) NOT NULL,  -- success, failed, timeout
-    processing_time_ms      INTEGER,
-    created_at              TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX idx_analysis_history_user_id ON analysis_history(user_id);
--- ※ 원본 이미지는 저장하지 않음 (개인정보 보호)
-```
-
-### D8. webhook_events 테이블
+### D7. webhook_events 테이블
 
 ```sql
 CREATE TABLE webhook_events (
@@ -272,6 +275,8 @@ CREATE TABLE webhook_events (
 CREATE INDEX idx_webhook_events_provider_type ON webhook_events(provider, event_type);
 CREATE INDEX idx_webhook_events_processed ON webhook_events(processed);
 ```
+
+> **참고**: `analysis_history` 테이블은 스키마 정의는 있으나 현재 API에서 이력 저장 기능은 미구현 상태.
 
 ---
 
@@ -296,52 +301,59 @@ CREATE INDEX idx_webhook_events_processed ON webhook_events(processed);
 | POST | `/api/v1/fridge/ingredients/bulk` | 재료 일괄 추가 (AI 결과 반영) | 예 |
 | PATCH | `/api/v1/fridge/ingredients/:id` | 재료 수정 | 예 |
 | DELETE | `/api/v1/fridge/ingredients/:id` | 재료 삭제 | 예 |
+| POST | `/api/v1/fridge/ingredients/classify` | AI로 'other' 재료 카테고리 재분류 (최대 30개) | 예 |
 
 ### E3. AI 분석 API
 
 | Method | 경로 | 설명 | 인증 |
 |--------|------|------|------|
-| POST | `/api/v1/analysis/upload` | 이미지 업로드 및 AI 분석 실행 | 예 |
-| GET | `/api/v1/analysis/history` | 분석 이력 조회 | 예 |
+| POST | `/api/v1/analysis/upload` | 이미지 업로드 및 AI 분석 실행 (최대 2장) | 예 |
+| GET | `/api/v1/analysis/history` | 분석 이력 조회 (미구현) | 예 |
 
 #### `POST /api/v1/analysis/upload` 상세 명세
 
 ```
 요청: multipart/form-data
-  - image: File (JPEG/PNG/WEBP, max 10MB)
+  - images: File[] (JPEG/PNG/WEBP, max 10MB 각, 최대 2장)
 
 성공 응답 (200):
 {
-  "analysis_id": "uuid",
   "detected_ingredients": [
     { "name": "당근", "quantity": 2, "unit": "개", "confidence": 0.95 }
   ],
-  "usage_remaining": 3
+  "analysis": {
+    "analysis_usage": N, "analysis_limit": N, "analysis_remaining": N,
+    "recipe_usage": N, "recipe_limit": N, "recipe_remaining": N
+  }
 }
 
 오류 응답:
-  402 - 쿼터 초과:    { "error": "quota_exceeded", "usage_count": 5, "limit": 5, "reset_date": "2025-02-01" }
+  402 - 쿼터 초과:    { "error": "quota_exceeded", ... }
   400 - 파일 오류:    { "error": "invalid_file", "detail": "..." }
   408 - 타임아웃:     { "error": "analysis_timeout" }
   422 - 파싱 실패:    { "error": "parsing_failed" }
   500 - 서버 오류:    { "error": "internal_error" }
 
 ※ 402 / 408 / 422 / 500 발생 시 usage_count 차감 없음
+※ 이미지 2장 병렬 처리 (asyncio.gather), 90초 타임아웃
 ```
 
 ### E4. 쿼터 API
 
 | Method | 경로 | 설명 | 인증 |
 |--------|------|------|------|
-| GET | `/api/v1/quota/status` | 현재 월 사용량 및 한도 조회 | 예 |
+| GET | `/api/v1/quota/status` | 현재 월 분석·레시피 사용량 조회 | 예 |
 
 ```
-응답 (200):
+응답 (200) — feature별 분리:
 {
   "year_month": "2025-01",
-  "usage_count": 3,
-  "limit_count": 5,
-  "remaining": 2,
+  "analysis_usage": 3,
+  "analysis_limit": 5,
+  "analysis_remaining": 2,
+  "recipe_usage": 7,
+  "recipe_limit": 10,
+  "recipe_remaining": 3,
   "plan_type": "free",
   "reset_date": "2025-02-01T00:00:00+09:00"
 }
@@ -351,10 +363,34 @@ CREATE INDEX idx_webhook_events_processed ON webhook_events(processed);
 
 | Method | 경로 | 설명 | 인증 |
 |--------|------|------|------|
-| GET | `/api/v1/recipes/recommend` | 현재 냉장고 기반 레시피 추천 | 예 |
-| GET | `/api/v1/recipes/:id` | 레시피 상세 조회 | 예 |
-| POST | `/api/v1/recipes/:id/bookmark` | 레시피 북마크 | 예 |
-| GET | `/api/v1/recipes/bookmarks` | 북마크 목록 조회 | 예 |
+| POST | `/api/v1/recipes/ai/candidates` | AI 요리 후보 3개 생성 (냉장고 기반) | 예 |
+| POST | `/api/v1/recipes/ai/generate` | 선택한 요리의 상세 레시피 AI 생성 | 예 |
+| GET | `/api/v1/recipes/curated` | 큐레이션 레시피 목록 조회 | 예 |
+
+> **북마크**: 서버 API 없음. 클라이언트 localStorage 기반으로만 관리.
+
+#### `POST /api/v1/recipes/ai/candidates` 요청
+
+```json
+{
+  "ingredients": ["당근", "계란", "두부"],
+  "food_types": ["한식", "양식"],
+  "custom_type": "",
+  "tastes": ["담백한", "간단한"]
+}
+```
+
+#### `POST /api/v1/recipes/ai/generate` 요청
+
+```json
+{
+  "ingredients": ["당근", "계란", "두부"],
+  "food_types": ["한식"],
+  "custom_type": "",
+  "tastes": ["담백한"],
+  "selected_dish": "계란두부찜"
+}
+```
 
 ### E6. 구독/결제 API
 
@@ -363,7 +399,29 @@ CREATE INDEX idx_webhook_events_processed ON webhook_events(processed);
 | GET | `/api/v1/billing/status` | 현재 구독 상태 조회 | 예 |
 | POST | `/api/v1/billing/checkout` | Polar.sh 체크아웃 세션 생성 | 예 |
 | POST | `/api/v1/billing/cancel` | 구독 취소 요청 | 예 |
-| POST | `/webhooks/polar` | Polar.sh 웹훅 수신 (서명 검증) | 아니오 |
+| POST | `/webhooks/polar` | Polar.sh 웹훅 수신 (HMAC 서명 검증) | 아니오 |
+
+### E7. 관리자 API
+
+| Method | 경로 | 설명 | 인증 |
+|--------|------|------|------|
+| GET | `/api/v1/admin/users` | 전체 사용자 목록 조회 | 어드민 전용 |
+| GET | `/api/v1/admin/stats` | 서비스 통계 | 어드민 전용 |
+| PATCH | `/api/v1/admin/users/:id/plan` | 사용자 플랜 강제 변경 | 어드민 전용 |
+
+> **어드민 식별**: `monthly_usage.limit_count = 99999` (ADMIN_UNLIMITED) 또는 별도 admin 플래그로 구별.
+
+### E8. 이미지 프록시 API
+
+| Method | 경로 | 설명 | 인증 |
+|--------|------|------|------|
+| GET | `/api/v1/image-proxy` | 외부 이미지 URL 프록시 (CORS 우회) | 아니오 |
+
+```
+쿼리 파라미터: ?url=<외부 이미지 URL>
+캐시: 메모리 LRU 200 엔트리
+동시 요청 제한: asyncio.Semaphore(4)
+```
 
 ---
 
@@ -376,31 +434,41 @@ CREATE INDEX idx_webhook_events_processed ON webhook_events(processed);
 | 알고리즘 | RS256 | 비대칭키, 공개키 검증 가능 |
 | Access Token 만료 | 15분 | 보안: 탈취 시 피해 최소화 |
 | Refresh Token 만료 | 30일 | 사용 편의성 |
-| 저장 방식 | HttpOnly Secure SameSite=Strict Cookie | XSS 방어 |
+| 저장 방식 | **HttpOnly Secure SameSite=None Cookie** | XSS 방어, 크로스 도메인 전송 |
 | Refresh Token 저장 | DB SHA-256 해시 저장 | 강제 만료/로그아웃 지원 |
 
 ### F2. 토큰 갱신 전략
 
-- Access Token 만료 시: 프론트엔드가 `/auth/refresh` 자동 호출
-- Refresh Token 만료 시: 로그인 페이지 리다이렉트
+- Access Token 만료 시: 프론트엔드가 `/auth/refresh` 자동 호출 (axios 인터셉터)
+- Refresh Token 만료 시: 랜딩 페이지(`/`)로 리다이렉트
 - 보안 이벤트 발생 시: 해당 사용자의 모든 Refresh Token 일괄 무효화
 
-### F3. Cookie 설정
+### F3. Cookie 설정 (실제 구현)
 
 ```
-Set-Cookie: access_token=...; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=900
-Set-Cookie: refresh_token=...; HttpOnly; Secure; SameSite=Strict; Path=/auth/refresh; Max-Age=2592000
+Set-Cookie: access_token=...; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=900
+Set-Cookie: refresh_token=...; HttpOnly; Secure; SameSite=None; Path=/auth/refresh; Max-Age=2592000
 ```
 
-> **SameSite=Strict vs None 트레이드오프**  
-> 프론트(yourdomain.com)와 백엔드(api.yourdomain.com)가 같은 도메인일 경우 Strict 사용 가능.  
-> 서브도메인이 다를 경우 `SameSite=None; Secure` 필요 → 설계 시 도메인 구조 사전 결정 필수.
+> **SameSite=None 필수 이유**  
+> 프론트엔드는 Vercel(`*.vercel.app`) 도메인, 백엔드는 Railway 도메인으로  
+> **서로 다른 최상위 도메인**을 사용하는 크로스 도메인 구조.  
+> SameSite=Strict 또는 Lax 사용 시 Cookie가 전달되지 않음.  
+> 반드시 `SameSite=None; Secure` 조합 필요.
 
 ---
 
 ## G. 사용 쿼터 로직
 
-### G1. 타임존 기준
+### G1. 플랜별 쿼터
+
+| 플랜 | 분석(analysis) | 레시피(recipe) | 비고 |
+|------|--------------|--------------|------|
+| Free | 월 5회 | 월 10회 | limit_count = 5 / 10 |
+| Premium | 월 30회 | 월 30회 | limit_count = 30 / 30 |
+| Admin | 99999회 | 99999회 | ADMIN_UNLIMITED |
+
+### G2. 타임존 기준
 
 ```
 모든 year_month 계산은 KST(UTC+9) 기준.
@@ -417,57 +485,54 @@ Set-Cookie: refresh_token=...; HttpOnly; Secure; SameSite=Strict; Path=/auth/ref
   year_month = datetime.now(ZoneInfo('Asia/Seoul')).strftime('%Y-%m')
 ```
 
-### G2. 쿼터 확인 및 차감 로직
+### G3. 쿼터 확인 및 차감 로직
 
 ```python
-async def check_and_increment_quota(user_id: str, db: AsyncSession) -> None:
+async def check_and_increment_quota(
+    user_id: str, db: AsyncSession, feature: str = 'analysis'
+) -> None:
     """
-    쿼터 확인 + AI 분석 성공 후 차감을 원자적으로 처리.
+    쿼터 확인 + 성공 후 차감을 원자적으로 처리.
+    feature: 'analysis' | 'recipe'
     한도 초과 시 QuotaExceededException 발생.
     """
     year_month = datetime.now(ZoneInfo('Asia/Seoul')).strftime('%Y-%m')
 
     async with db.begin():
-        # FOR UPDATE: 행 수준 잠금 → 레이스 컨디션 방지
         result = await db.execute(
             select(MonthlyUsage)
             .where(
                 MonthlyUsage.user_id == user_id,
-                MonthlyUsage.year_month == year_month
+                MonthlyUsage.year_month == year_month,
+                MonthlyUsage.feature == feature  # feature별 별도 행
             )
-            .with_for_update()
+            .with_for_update()  # 행 수준 잠금 → 레이스 컨디션 방지
         )
         usage = result.scalar_one_or_none()
 
         if not usage:
-            # 신규 월: UPSERT
-            usage = MonthlyUsage(user_id=user_id, year_month=year_month)
+            # 신규 월/feature: 레코드 생성
+            default_limit = FREE_LIMITS[feature]  # 'analysis': 5, 'recipe': 10
+            usage = MonthlyUsage(
+                user_id=user_id,
+                year_month=year_month,
+                feature=feature,
+                limit_count=default_limit
+            )
             db.add(usage)
             await db.flush()
 
-        # 유료 사용자는 무제한
-        subscription = await get_active_subscription(user_id, db)
-        if subscription and subscription.plan_type == 'premium':
-            return
-
         if usage.usage_count >= usage.limit_count:
-            raise QuotaExceededException(
-                usage_count=usage.usage_count,
-                limit=usage.limit_count,
-                reset_date=get_next_month_reset(year_month)
-            )
+            raise QuotaExceededException(...)
 
-        # AI 성공 후에만 이 함수 호출됨 → 바로 증가
         usage.usage_count += 1
-        usage.updated_at = datetime.now(timezone.utc)
 ```
 
-### G3. 레이스 컨디션 방지 전략
+### G4. 레이스 컨디션 방지 전략
 
 - `SELECT ... FOR UPDATE` 를 통한 행 수준 잠금
 - 트랜잭션 내 확인-증가 원자적 처리
-- 동시 요청 시 먼저 잠금 획득한 요청만 처리, 나머지는 대기 후 재확인
-- `check_and_increment_quota`는 AI API 성공 응답 수신 **이후에만** 호출
+- AI API 성공 응답 수신 **이후에만** `check_and_increment_quota` 호출
 
 ---
 
@@ -479,10 +544,10 @@ async def check_and_increment_quota(user_id: str, db: AsyncSession) -> None:
 2. `X-Polar-Signature` 헤더 HMAC 검증 (비밀 키 대조)
 3. `webhook_events` 테이블에 이벤트 저장 (`polar_event_id` 중복 체크로 멱등성 보장)
 4. 이벤트 유형별 처리:
-   - `subscription.created` → `subscriptions` 레코드 생성, `plan_type='premium'`
+   - `subscription.created` → `subscriptions` 레코드 생성, `plan_type='premium'`, `limit_count=30`으로 갱신
    - `subscription.updated` → 상태 동기화
    - `subscription.canceled` → `canceled_at` 기록, 기간 종료까지 유료 유지
-   - `subscription.revoked` → 즉시 `free`로 다운그레이드
+   - `subscription.revoked` → 즉시 `free`로 다운그레이드, `limit_count=5/10` 복원
    - `payment.failed` → `status='past_due'` 기록
 5. **200 응답 반환** (처리 실패 시에도 200 반환 후 내부 에러 로깅 → Polar.sh 재전송 방지)
 
@@ -490,25 +555,22 @@ async def check_and_increment_quota(user_id: str, db: AsyncSession) -> None:
 
 | Polar.sh 이벤트 | DB status | 사용자 플랜 |
 |---------------|---------|----------|
-| `subscription.created` | `active` | premium |
+| `subscription.created` | `active` | premium (analysis 30 / recipe 30) |
 | `subscription.updated` (active) | `active` | premium |
 | `subscription.canceled` | `canceled` | premium (기간 내) |
-| `subscription.revoked` | `expired` | free |
-| `payment.failed` | `past_due` | premium (3일 유예) |
+| `subscription.revoked` | `expired` | free (analysis 5 / recipe 10 복원) |
+| `payment.failed` | `past_due` | premium (유예) |
 | `payment.succeeded` (재결제) | `active` | premium |
 
 ### H3. 멱등성 보장
 
 ```python
-async def handle_polar_webhook(event_id: str, event_type: str, payload: dict, db: AsyncSession):
-    # 이미 처리된 이벤트인지 확인
+async def handle_polar_webhook(event_id: str, ...):
     existing = await db.execute(
         select(WebhookEvent).where(WebhookEvent.polar_event_id == event_id)
     )
     if existing.scalar_one_or_none():
         return  # 중복 처리 방지
-
-    # 이벤트 저장 후 처리
     ...
 ```
 
@@ -518,93 +580,105 @@ async def handle_polar_webhook(event_id: str, event_type: str, payload: dict, db
 
 ### I1. 백엔드 중개 필수 이유
 
-- API 키를 클라이언트에 노출하면 키 탈취 → 무제한 API 호출 가능 → **비용 폭발**
+- API 키를 클라이언트에 노출하면 키 탈취 → 무제한 API 호출 → **비용 폭발**
 - 쿼터 차감 로직은 반드시 서버에서 처리해야 함 (클라이언트 조작 방지)
 - 이미지 전처리, 결과 정규화, 오류 처리를 서버에서 통제
 
 ### I2. OpenAI Vision API 호출 전략
 
 ```python
+OPENAI_MODEL = "gpt-4o"
+OPENAI_TIMEOUT_SECONDS = 90   # 90초 타임아웃 (이미지 복잡도에 따라 시간 소요)
+OPENAI_MAX_RETRIES = 1
+
 SYSTEM_PROMPT = """
-당신은 식재료 인식 전문가입니다.
-이미지에서 보이는 모든 식재료를 JSON 배열로만 반환하세요.
-각 항목 형식: {"name": "재료명(한국어)", "quantity": 숫자, "unit": "단위", "confidence": 0~1}
-재료가 없으면 빈 배열 [] 반환.
+당신은 냉장고 이미지에서 식재료를 인식하는 전문가입니다.
+이미지에서 보이는 모든 식재료를 JSON으로만 반환하세요.
+형식: {"ingredients": [{"name": "재료명(한국어)", "quantity": 숫자, "unit": "단위", "confidence": 0~1}]}
+재료가 없으면 {"ingredients": []} 반환.
 JSON 외 다른 텍스트 출력 절대 금지.
 """
 
 async def analyze_image(image_bytes: bytes) -> list[dict]:
+    b64 = base64.b64encode(image_bytes).decode('utf-8')
     response = await openai_client.chat.completions.create(
-        model="gpt-4o",
-        max_tokens=1000,
-        timeout=30,  # 30초 타임아웃
+        model=OPENAI_MODEL,
+        max_tokens=2000,
+        timeout=OPENAI_TIMEOUT_SECONDS,
         messages=[{
+            "role": "system", "content": SYSTEM_PROMPT
+        }, {
             "role": "user",
             "content": [
                 {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}},
-                {"type": "text", "text": "이 이미지의 식재료를 분석해주세요."}
             ]
         }],
         response_format={"type": "json_object"}
     )
     return parse_ai_response(response.choices[0].message.content)
+
+# 2장 병렬 처리
+results = await asyncio.gather(*[analyze_image(img) for img in images])
 ```
 
 ### I3. 재시도 정책
 
 ```
-최대 재시도: 2회
-백오프: 1초 → 2초 (exponential)
-재시도 조건: 타임아웃, 5xx 오류
+최대 재시도: 1회 (OPENAI_MAX_RETRIES = 1)
+전체 타임아웃: 90초
 재시도 제외: 400, 401, 402, 422 (클라이언트 오류)
-전체 타임아웃: 30초
 ```
 
 ### I4. 결과 정규화
 
-- AI 응답 재료명 → 표준 재료명 매핑 테이블 적용 (예: `"토마토" = "방울토마토" = "토마테"`)
-- 신뢰도(`confidence`) 0.3 미만 항목 필터링
-- 빈 응답 또는 JSON 파싱 실패 → `AnalysisFailedException` 발생, 횟수 미차감
+- `ingredient_normalizer.py`: 동의어 정규화 (예: `"토마토"` = `"방울토마토"` = `"토마테"`)
+- 이름 기반 중복 제거: 2장 이미지 결과 병합 시 같은 재료 중복 제거
+- 신뢰도(`confidence`) 낮은 항목도 반환 (프론트에서 사용자가 직접 편집 가능)
+- 빈 응답 또는 JSON 파싱 실패 → 오류 반환, 횟수 미차감
 
 ---
 
 ## J. 레시피 추천 설계
 
-### J1. MVP 레시피 소스 전략
+### J1. AI 레시피 생성 전략 (GPT-4o 2단계)
 
-**권장: Spoonacular API + 자체 한국 요리 큐레이션 혼합**
+> **Spoonacular API 미사용** — 전량 OpenAI GPT-4o로 생성.  
+> 한국 요리 커버리지 및 냉장고 재료 맞춤 생성에 최적화.
 
-| 소스 | 장점 | 단점 |
-|------|------|------|
-| Spoonacular API | 재료 매칭 내장, 상업적 허용, 대규모 DB | 한국 요리 커버리지 부족, 유료 한도 있음 |
-| 자체 큐레이션 DB | 한국 요리 전문, API 의존성 없음, 비용 예측 가능 | 초기 구축 비용 |
-| AI 생성 레시피 | 유연성 높음 | **신뢰도 불명확, 재료 분량 오류 위험, 법적 책임 이슈** |
+**1단계 — 요리 후보 생성**
 
-> ※ AI 완전 생성 레시피는 MVP에서 사용하지 않음.  
-> AI는 식재료 인식, 재료명 정규화, 레시피 매칭·랭킹 보조에만 활용.
-
-### J2. 재료 매칭 알고리즘
-
-1. 사용자 냉장고 재료 목록 조회
-2. 재료명 정규화 (동의어 처리: `"대파" = "파" = "쪽파"`)
-3. Spoonacular API 또는 내부 DB에서 후보 레시피 조회
-4. 각 레시피별 매칭률 계산:
-
-```
-match_ratio = (보유_재료_수 / 레시피_총_재료_수) × 100
+```python
+CANDIDATE_SYSTEM_PROMPT = """
+당신은 한국 요리 전문 AI입니다.
+주어진 냉장고 재료로 만들 수 있는 요리 3가지를 추천하세요.
+형식: {"candidates": [{"dish": "요리명", "description": "간단 설명", "difficulty": "쉬움/보통/어려움"}]}
+JSON만 반환하세요.
+"""
 ```
 
-5. 정렬: 매칭률 높은 순 → 조리 시간 짧은 순
-6. 표시: "보유 재료 N개 / 부족 재료 M개" 배지
+**2단계 — 상세 레시피 생성**
 
-### J3. 부분 매칭 표현
+```python
+RECIPE_SYSTEM_PROMPT = """
+당신은 요리 레시피 전문가입니다.
+선택된 요리의 상세 레시피를 생성하세요.
+형식: {"title": "...", "ingredients": [...], "steps": [...], "tips": "..."}
+JSON만 반환하세요.
+"""
+```
 
-| 매칭률 | UI 표시 | 추천 여부 |
-|-------|---------|---------|
-| 100% | "지금 바로 만들 수 있어요! ✅" | 최우선 |
-| 70~99% | "재료 N개만 더 있으면" | 추천 |
-| 40~69% | "재료 일부 필요" | 추천 (하단) |
-| < 40% | 표시 안 함 (또는 별도 섹션) | 기본 미표시 |
+### J2. 큐레이션 레시피 (CURATED_RECIPES)
+
+- `recipe_service.py`에 하드코딩된 한국 요리 기본 레시피 목록 보유
+- AI 생성 레시피 외 보조 레시피로 활용
+
+### J3. 매칭률 표현 (큐레이션 레시피)
+
+| 매칭률 | UI 표시 | 색상 |
+|-------|---------|------|
+| ≥ 80% | "지금 바로 만들 수 있어요!" | Green |
+| 50~79% | "재료 N개만 더 있으면" | Amber |
+| < 50% | "재료 일부 필요" | Gray |
 
 ---
 
@@ -615,16 +689,17 @@ match_ratio = (보유_재료_수 / 레시피_총_재료_수) × 100
 ```
 프론트엔드 (Vercel):
   - main 브랜치 push → Vercel 자동 빌드/배포
-  - PR → 미리보기 URL 자동 생성
+  - PR → 미리보기 URL 자동 생성 (ai-gunwoo-*.vercel.app 패턴)
   - 환경변수: Vercel 대시보드에서 관리
 
 백엔드 (Railway):
   - main 브랜치 push → Railway 자동 Docker 빌드/배포
+  - railway.toml 설정: [build] builder = "dockerfile"
   - 환경변수: Railway 대시보드에서 관리
 
 DB 마이그레이션:
-  - 배포 전 Alembic migrate 자동 실행
-  - Dockerfile CMD: ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+  - 배포 시 Alembic migrate 자동 실행
+  - Dockerfile CMD: ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT"]
 ```
 
 ### K2. Dockerfile (백엔드)
@@ -641,27 +716,35 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2"]
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
 ```
 
 ### K3. 도메인 / CORS / HTTPS
 
-- 프론트엔드 도메인: `yourdomain.com` (Vercel Custom Domain)
-- 백엔드 도메인: `api.yourdomain.com` (Railway Custom Domain)
-- CORS: FastAPI에서 `ALLOW_ORIGINS`에 프론트엔드 도메인만 허용
+- 프론트엔드 도메인: `ai-gunwoo-*.vercel.app` (Vercel 자동 배포 도메인)
+- 백엔드 도메인: Railway 제공 도메인
 - HTTPS: Vercel/Railway 모두 자동 SSL 인증서 발급
-- Cookie: `SameSite=Strict; Secure` (프론트/백엔드가 같은 최상위 도메인)
 
 ```python
-# FastAPI CORS 설정
+# FastAPI CORS 설정 (실제 구현)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,  # ["https://yourdomain.com"]
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "https://ai-gunwoo.vercel.app",
+        # 추가 명시 도메인들...
+    ],
+    allow_origin_regex=r"https://ai-gunwoo-.*\.vercel\.app",  # PR 미리보기 URL 패턴
     allow_credentials=True,  # Cookie 전송 허용
-    allow_methods=["GET", "POST", "PATCH", "DELETE"],
-    allow_headers=["Content-Type", "Authorization"],
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "Cookie"],
 )
 ```
+
+> **allow_origin_regex 필요 이유**  
+> Vercel은 PR마다 `https://ai-gunwoo-<hash>.vercel.app` 형태의 미리보기 URL을 자동 생성함.  
+> 정규식으로 이 패턴 전체를 허용하지 않으면 개발 중 CORS 에러 발생.
 
 ---
 
@@ -669,16 +752,15 @@ app.add_middleware(
 
 | 항목 | 구현 방법 |
 |------|---------|
-| XSS 방어 | HttpOnly Cookie로 토큰 저장, React는 기본적으로 HTML 이스케이핑 |
-| CSRF 방어 | SameSite=Strict Cookie (+ 필요 시 CSRF 토큰 추가) |
+| XSS 방어 | HttpOnly Cookie로 토큰 저장, React 기본 HTML 이스케이핑 |
+| CSRF 방어 | SameSite=None + HTTPS 전용 (Secure 플래그) |
 | SQL 인젝션 | SQLAlchemy ORM 파라미터 바인딩 (Raw SQL 지양) |
-| 파일 업로드 검증 | MIME 타입 확인, 파일 크기 제한 (10MB), 이미지 헤더 magic bytes 검증 |
+| 파일 업로드 검증 | MIME 타입 확인, 파일 크기 제한 (10MB), 이미지 헤더 검증 |
 | API 키 보호 | 환경변수 저장, `.gitignore`에 `.env` 포함, 코드베이스 노출 금지 |
 | 웹훅 검증 | Polar.sh HMAC 서명 검증 (`X-Polar-Signature` 헤더) |
-| Rate Limiting | SlowAPI 미들웨어: 분석 API 분당 10회, 로그인 분당 5회 |
 | 쿼터 어뷰징 | 서버 측 트랜잭션 처리, 클라이언트 전달 값 신뢰 안 함 |
-| 로그 개인정보 | 로그에 이메일 마스킹, 토큰 전체 기록 금지 |
-| 이미지 보안 | 분석 후 즉시 삭제, URL 기반 접근 차단 |
+| 이미지 보안 | 분석 후 즉시 삭제, 영구 저장 없음 |
+| 이미지 프록시 | Semaphore(4)로 동시 요청 제한, LRU 캐시(200 엔트리) |
 
 ---
 
@@ -688,17 +770,16 @@ app.add_middleware(
 
 | 위험 지점 | 대응 전략 |
 |---------|---------|
-| AI API 타임아웃 | 30초 타임아웃 설정, 재시도 2회, 실패 시 graceful error |
+| AI API 타임아웃 | **90초** 타임아웃 설정, 재시도 1회, 실패 시 graceful error + 횟수 미차감 |
 | DB 연결 풀 고갈 | SQLAlchemy `pool_size=10, max_overflow=20` 설정 |
 | Polar.sh 웹훅 실패 | `webhook_events` 테이블 저장 후 재처리, 멱등성 보장 |
 | Railway 배포 실패 | 이전 버전 롤백 (Railway 배포 이력 보존) |
-| 메모리 누수 (이미지) | `tmpfile` 컨텍스트 매니저로 자동 삭제 보장 |
+| 메모리 누수 (이미지) | 메모리 내 처리, 컨텍스트 종료 시 자동 GC |
 | 인증 토큰 탈취 | 단기 Access Token (15분) + HttpOnly Cookie + HTTPS 전송 |
+| CORS 미리보기 URL | `allow_origin_regex` 패턴으로 Vercel 미리보기 도메인 전체 허용 |
 
 ### M2. 모니터링 권장
 
-- **Sentry**: 백엔드/프론트엔드 오류 추적, 슬랙 알림 연동
-- **Logfire** (Pydantic 팀): FastAPI APM + 구조화된 로깅
 - **Railway 대시보드**: CPU/메모리/네트워크 기본 모니터링
 - **Polar.sh 대시보드**: 구독/결제 이벤트 모니터링
 - **OpenAI 대시보드**: 월별 비용 한도 알림 설정 (비용 폭발 방지)
@@ -711,119 +792,122 @@ app.add_middleware(
 |-----------|------|------------|
 | 백엔드 단위 테스트 | pytest + pytest-asyncio | 핵심 비즈니스 로직 80%+ |
 | API 통합 테스트 | pytest + httpx TestClient | 모든 엔드포인트 |
-| 쿼터 로직 테스트 | pytest + DB 트랜잭션 | 경계값, 동시 요청 시뮬레이션 |
+| 쿼터 로직 테스트 | pytest + DB 트랜잭션 | 경계값, 동시 요청, feature 분리 |
 | 웹훅 처리 테스트 | pytest + 시그니처 모킹 | 모든 Polar.sh 이벤트 유형 |
 | AI API 모킹 | pytest-mock | 성공/실패/타임아웃 3가지 시나리오 |
 | 프론트엔드 컴포넌트 | Vitest + React Testing Library | 핵심 UI 컴포넌트 |
-| E2E 테스트 | Playwright (Phase 2) | 핵심 사용자 플로우 |
-| 레시피 추천 테스트 | pytest + 샘플 냉장고 데이터 | 매칭 알고리즘 정확도 |
 
 ### 핵심 테스트 케이스
 
 ```python
-# 쿼터 로직 경계값 테스트
 class TestQuotaLogic:
-    async def test_free_user_can_analyze_at_limit_minus_1(self): ...
-    async def test_free_user_blocked_at_limit(self): ...
+    async def test_free_analysis_limit_is_5(self): ...
+    async def test_free_recipe_limit_is_10(self): ...
+    async def test_premium_analysis_limit_is_30(self): ...
     async def test_quota_not_decremented_on_ai_failure(self): ...
     async def test_quota_not_decremented_on_timeout(self): ...
-    async def test_concurrent_requests_not_exceed_limit(self): ...  # 레이스 컨디션
+    async def test_concurrent_requests_not_exceed_limit(self): ...
+    async def test_analysis_and_recipe_quotas_are_independent(self): ...
     async def test_monthly_reset_on_new_month(self): ...
-    async def test_premium_user_always_allowed(self): ...
 ```
 
 ---
 
 ## O. 프로젝트 폴더 구조
 
-### O1. 프론트엔드
+### O1. 프론트엔드 (fridgeai-frontend/)
 
 ```
-frontend/
+fridgeai-frontend/
 ├── public/
+│   └── images/
+│       ├── bg-market.jpg       # 배경 슬라이드쇼 이미지 1
+│       └── bg-seafood.jpg      # 배경 슬라이드쇼 이미지 2
 ├── src/
-│   ├── api/                # API 클라이언트 (axios/fetch 래퍼)
+│   ├── api/                    # API 클라이언트 (axios 래퍼)
 │   │   ├── auth.ts
 │   │   ├── fridge.ts
 │   │   ├── analysis.ts
 │   │   ├── recipes.ts
+│   │   ├── quota.ts
 │   │   └── billing.ts
 │   ├── components/
-│   │   ├── ui/             # Button, Input, Modal, Badge 등 기본 요소
-│   │   └── feature/        # FridgeCard, RecipeCard, AnalysisResult 등
+│   │   ├── AdminPanel.tsx       # 관리자용 플로팅 패널 컴포넌트
+│   │   └── BackgroundSlideshow.tsx  # 배경 이미지 슬라이드쇼 (6s 간격)
 │   ├── pages/
-│   │   ├── Dashboard.tsx
-│   │   ├── Fridge.tsx
-│   │   ├── Analyze.tsx
-│   │   ├── Recipes.tsx
-│   │   ├── RecipeDetail.tsx
-│   │   ├── Subscription.tsx
-│   │   └── Settings.tsx
-│   ├── store/              # Zustand 전역 상태
+│   │   ├── Landing.tsx         # / — 랜딩 페이지
+│   │   ├── Dashboard.tsx       # /dashboard — 2×2 퀵액션 그리드
+│   │   ├── Fridge.tsx          # /fridge — 11종 카테고리 재료 관리
+│   │   ├── Analyze.tsx         # /analyze — 최대 2장 이미지 분석
+│   │   ├── Recipes.tsx         # /recipes — AI 2단계 레시피 추천
+│   │   ├── RecipeDetail.tsx    # /recipes/:id
+│   │   └── Subscription.tsx    # /subscription — 구독 관리
+│   ├── store/                  # Zustand 전역 상태
 │   │   ├── authStore.ts
 │   │   └── quotaStore.ts
-│   ├── hooks/              # 커스텀 훅
-│   │   ├── useAuth.ts
-│   │   ├── useQuota.ts
-│   │   └── useFridge.ts
-│   ├── types/              # TypeScript 타입 정의
-│   │   └── index.ts
-│   ├── utils/              # 유틸리티 함수
-│   ├── App.tsx
+│   ├── types/
+│   │   └── index.ts            # TypeScript 타입 정의 (QuotaStatus, Ingredient 등)
+│   ├── utils/
+│   ├── App.tsx                 # 라우터 + BackgroundSlideshow + AdminPanel
 │   └── main.tsx
+├── PRD.md
+├── TRD.md
+├── CLAUDE.md
+├── Prigio_Design_Spec_v1.0.md
 ├── .env.example
 ├── vite.config.ts
 ├── tailwind.config.ts
 └── package.json
 ```
 
-### O2. 백엔드
+> **라우트 목록**: `/`, `/dashboard`, `/fridge`, `/analyze`, `/recipes`, `/recipes/:id`, `/subscription`  
+> **없는 라우트**: `/login`, `/settings` (별도 페이지 없음)
+
+### O2. 백엔드 (fridgeai-backend/)
 
 ```
-backend/
+fridgeai-backend/
 ├── app/
 │   ├── api/
 │   │   └── v1/
-│   │       ├── auth.py
-│   │       ├── fridge.py
-│   │       ├── analysis.py
-│   │       ├── recipes.py
-│   │       ├── billing.py
-│   │       └── quota.py
+│   │       ├── admin.py              # 관리자 API
+│   │       ├── analysis.py           # AI 이미지 분석 (MAX_IMAGES=2)
+│   │       ├── auth.py               # Google OAuth + JWT
+│   │       ├── billing.py            # Polar.sh 결제
+│   │       ├── fridge.py             # 냉장고/식재료 CRUD + /classify
+│   │       ├── quota.py              # 사용량 조회
+│   │       └── recipes.py            # AI 2단계 레시피
 │   ├── core/
-│   │   ├── config.py       # 환경변수 설정 (Pydantic Settings)
-│   │   ├── security.py     # JWT 유틸, 비밀번호 해시
-│   │   ├── database.py     # SQLAlchemy 비동기 설정
-│   │   └── dependencies.py # FastAPI Depends 공통 의존성
-│   ├── models/             # SQLAlchemy ORM 모델
+│   │   ├── config.py                 # 환경변수 (OPENAI_TIMEOUT_SECONDS=90)
+│   │   ├── security.py               # JWT RS256 유틸
+│   │   ├── database.py               # SQLAlchemy 비동기 설정
+│   │   └── dependencies.py           # FastAPI Depends 공통 의존성
+│   ├── models/                       # SQLAlchemy ORM 모델
 │   │   ├── user.py
 │   │   ├── subscription.py
 │   │   ├── fridge.py
 │   │   ├── usage.py
 │   │   └── webhook.py
-│   ├── schemas/            # Pydantic 요청/응답 스키마
+│   ├── schemas/                      # Pydantic 요청/응답 스키마
 │   │   ├── auth.py
 │   │   ├── fridge.py
 │   │   ├── analysis.py
 │   │   ├── recipe.py
 │   │   └── billing.py
-│   ├── services/           # 비즈니스 로직
-│   │   ├── ai_service.py
-│   │   ├── quota_service.py
-│   │   ├── recipe_service.py
-│   │   └── billing_service.py
+│   ├── services/                     # 비즈니스 로직
+│   │   ├── ai_service.py             # GPT-4o Vision 호출 (90s timeout)
+│   │   ├── billing_service.py
+│   │   ├── ingredient_normalizer.py  # 재료명 동의어 정규화
+│   │   ├── quota_service.py          # feature별 쿼터 관리
+│   │   └── recipe_service.py         # 큐레이션 레시피 + AI 생성
 │   ├── webhooks/
-│   │   └── polar.py
-│   └── main.py
-├── alembic/                # DB 마이그레이션
+│   │   └── polar.py                  # Polar.sh 웹훅 HMAC 검증
+│   └── main.py                       # CORS, 라우터 등록, 이미지 프록시
+├── alembic/
 │   ├── env.py
 │   └── versions/
-├── tests/
-│   ├── test_quota.py
-│   ├── test_auth.py
-│   ├── test_analysis.py
-│   └── test_webhooks.py
 ├── Dockerfile
+├── railway.toml                      # [build] builder = "dockerfile"
 ├── requirements.txt
 └── .env.example
 ```
@@ -832,11 +916,11 @@ backend/
 
 ## P. .env.example
 
-### P1. 프론트엔드 (`frontend/.env.example`)
+### P1. 프론트엔드 (`fridgeai-frontend/.env.example`)
 
 ```env
 # ─── 백엔드 API ──────────────────────────────────────────────
-VITE_API_BASE_URL=https://api.yourdomain.com
+VITE_API_BASE_URL=https://your-backend.railway.app
 
 # ─── Polar.sh ─────────────────────────────────────────────────
 VITE_POLAR_CHECKOUT_URL=https://buy.polar.sh/your-product-id
@@ -845,19 +929,18 @@ VITE_POLAR_CHECKOUT_URL=https://buy.polar.sh/your-product-id
 VITE_APP_ENV=development
 ```
 
-### P2. 백엔드 (`backend/.env.example`)
+### P2. 백엔드 (`fridgeai-backend/.env.example`)
 
 ```env
 # ─── 앱 기본 ──────────────────────────────────────────────────
 APP_ENV=development
-APP_NAME=FridgeAI
+APP_NAME=Prigio
 DEBUG=true
-SECRET_KEY=your-secret-key-at-least-32-chars-replace-in-production
 
 # ─── 데이터베이스 ────────────────────────────────────────────
-DATABASE_URL=postgresql+asyncpg://user:password@host:5432/fridgeai
+DATABASE_URL=postgresql+asyncpg://user:password@host:5432/prigio
 
-# ─── JWT ─────────────────────────────────────────────────────
+# ─── JWT (RS256 비대칭키) ────────────────────────────────────
 JWT_PRIVATE_KEY_PATH=./keys/private.pem
 JWT_PUBLIC_KEY_PATH=./keys/public.pem
 ACCESS_TOKEN_EXPIRE_MINUTES=15
@@ -866,30 +949,25 @@ REFRESH_TOKEN_EXPIRE_DAYS=30
 # ─── Google OAuth ─────────────────────────────────────────────
 GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your-google-client-secret
-GOOGLE_REDIRECT_URI=https://api.yourdomain.com/auth/google/callback
+GOOGLE_REDIRECT_URI=https://your-backend.railway.app/auth/google/callback
 
 # ─── OpenAI ──────────────────────────────────────────────────
 OPENAI_API_KEY=sk-your-openai-api-key
 OPENAI_MODEL=gpt-4o
-OPENAI_TIMEOUT_SECONDS=30
-OPENAI_MAX_RETRIES=2
+OPENAI_TIMEOUT_SECONDS=90
+OPENAI_MAX_RETRIES=1
 
 # ─── Polar.sh ─────────────────────────────────────────────────
 POLAR_API_KEY=your-polar-api-key
 POLAR_WEBHOOK_SECRET=your-polar-webhook-secret
 POLAR_PRODUCT_ID=your-polar-product-id
 
-# ─── 레시피 API ───────────────────────────────────────────────
-SPOONACULAR_API_KEY=your-spoonacular-api-key
-
 # ─── CORS ────────────────────────────────────────────────────
-ALLOWED_ORIGINS=https://yourdomain.com,http://localhost:5173
+ALLOWED_ORIGINS=https://ai-gunwoo.vercel.app,http://localhost:5173
 
 # ─── 쿼터 ────────────────────────────────────────────────────
 FREE_PLAN_MONTHLY_LIMIT=5
-
-# ─── Sentry (모니터링) ────────────────────────────────────────
-SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
+# (analysis=5, recipe=10 — quota_service.py에 하드코딩된 FREE_LIMITS 사용)
 ```
 
 ---
@@ -898,17 +976,16 @@ SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
 
 ### Q1. 마일스톤 및 빌드 순서
 
-| 단계 | 작업 | 예상 기간 |
-|------|------|---------|
-| M1: 기반 인프라 | DB 스키마, 마이그레이션, 환경 설정, 배포 파이프라인 (Railway + Vercel) | 1주 |
-| M2: 인증 | Google OAuth, JWT, 로그인/로그아웃, 세션 관리 | 1주 |
-| M3: 냉장고 CRUD | 식재료 추가/수정/삭제/조회 API + UI | 1주 |
-| M4: AI 분석 | 이미지 업로드, OpenAI 통합, 쿼터 로직, 결과 UI | 1.5주 |
-| M5: 레시피 추천 | Spoonacular 연동, 매칭 알고리즘, 추천 UI | 1주 |
-| M6: 구독/결제 | Polar.sh 체크아웃, 웹훅 처리, 구독 상태 UI | 1주 |
-| M7: 통합/QA | E2E 테스트, 오류 처리 개선, 모니터링 설정, 프로덕션 배포 | 1주 |
-
-**총 예상: 약 7.5주**
+| 단계 | 작업 | 상태 |
+|------|------|------|
+| M1: 기반 인프라 | DB 스키마, 마이그레이션, Railway + Vercel 배포 파이프라인 | ✅ 완료 |
+| M2: 인증 | Google OAuth, JWT, 로그인/로그아웃, 세션 관리 | ✅ 완료 |
+| M3: 냉장고 CRUD | 식재료 추가/수정/삭제/조회 API + UI, 11종 카테고리 | ✅ 완료 |
+| M4: AI 분석 | 이미지 업로드(2장), GPT-4o 통합, 쿼터 로직, 결과 UI | ✅ 완료 |
+| M5: 레시피 추천 | AI 2단계 생성(후보→상세), 큐레이션 레시피 | ✅ 완료 |
+| M6: 구독/결제 | Polar.sh 체크아웃, 웹훅 처리, 구독 상태 UI | ✅ 완료 |
+| M7: 관리자 | AdminPanel, /api/v1/admin, ADMIN_UNLIMITED | ✅ 완료 |
+| M8: Phase 2 | 분석 이력, ML/DL 기능 고도화 | 🔜 예정 |
 
 ### Q2. 의존성 순서
 
@@ -916,20 +993,19 @@ SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
 1. DB 스키마 & 마이그레이션    ← 모든 것의 기반
 2. Google OAuth + JWT          ← 모든 보호된 API의 전제
 3. 냉장고/식재료 CRUD          ← AI 결과 저장처
-4. 쿼터 시스템                 ← AI 분석의 전제
+4. 쿼터 시스템(feature별)     ← AI 분석·레시피의 전제
 5. AI 이미지 분석              ← 레시피 추천의 데이터 소스
-6. 레시피 추천                 ← 식재료 데이터 필요
-7. Polar.sh 결제               ← 쿼터 시스템과 독립적으로 병렬 개발 가능
+6. AI 레시피 2단계 생성        ← 식재료 데이터 필요
+7. Polar.sh 결제               ← 독립적, 병렬 개발 가능
 ```
 
 ### Q3. Phase 2 이후 로드맵
 
-- 유통기한 OCR 자동 인식
-- 영양 정보 및 칼로리 분석
+- 분석 이력 저장 및 조회 기능 구현
+- ML 기반 유통기한 신선도 감지
+- 협업 필터링 기반 레시피 개인화 추천
 - 장보기 목록 자동 생성
 - 모바일 PWA 최적화
-- 소셜 레시피 공유 기능
-- 이메일 기반 회원가입 추가
 
 ---
 
@@ -937,14 +1013,14 @@ SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
 
 | ID | 가정 내용 | 근거 |
 |----|---------|------|
-| A01 | 레시피 API는 Spoonacular를 기본으로 사용 | 상업적 허용, 한국 음식 포함, 재료 매칭 내장 |
-| A02 | AI API는 OpenAI GPT-4o Vision을 사용 | 식재료 인식 정확도, API 안정성 최상 |
-| A03 | 백엔드 배포는 Railway를 사용 | Docker 네이티브, GitHub 연동, 합리적 가격 |
+| A01 | 레시피는 GPT-4o로 AI 직접 생성 (Spoonacular 미사용) | 한국 요리 전문성, 재료 맞춤 생성 |
+| A02 | AI API는 OpenAI GPT-4o Vision 사용 | 식재료 인식 + 레시피 생성 통합 |
+| A03 | 백엔드 배포는 Railway 사용 | Docker 네이티브, GitHub 연동, 합리적 가격 |
 | A04 | DB는 Supabase PostgreSQL 사용 | 무료 티어 충분, 관리형 서비스 |
 | A05 | 월간 초기화는 KST(UTC+9) 기준 | 한국 서비스, 사용자 체감 시간 기준 |
-| A06 | 이미지 영구 저장 없음, 분석 후 즉시 삭제 | 개인정보 보호, 스토리지 비용 절감 |
-| A07 | 유료 플랜 가격은 별도 A/B 테스트 후 결정 | 초기 MVP에서 가격 최종 미정 |
-| A08 | 자체 큐레이션 한국 요리 DB 초기 50개 확보 | 한국 음식 전문성 강화 목적 |
+| A06 | 이미지 영구 저장 없음, 분석 후 즉시 메모리에서 해제 | 개인정보 보호, 스토리지 비용 절감 |
+| A07 | SameSite=None 쿠키 필수 | Vercel + Railway 크로스 도메인 구조 |
+| A08 | 북마크는 localStorage 기반 (서버 미저장) | MVP 단계 구현 용이성 |
 
 ---
 
@@ -954,17 +1030,18 @@ SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
 |------|---------|
 | 프론트엔드 | React 18 + Vite + TypeScript + Tailwind CSS + Zustand + React Query |
 | 백엔드 | FastAPI + Python 3.11 + SQLAlchemy 2.0 + Alembic |
-| 데이터베이스 | PostgreSQL 15 (Supabase 관리형) |
-| 인증 | Google OAuth 2.0 + JWT RS256 + HttpOnly Secure Cookie |
-| AI 분석 | OpenAI GPT-4o Vision API (백엔드 중개 필수) |
-| 레시피 | Spoonacular API + 자체 한국 요리 큐레이션 DB |
-| 결제 | Polar.sh 월정액 구독 |
-| 프론트 배포 | Vercel (GitHub 자동 배포) |
-| 백엔드 배포 | Railway (Docker 컨테이너) |
-| 모니터링 | Sentry + Logfire |
+| 데이터베이스 | PostgreSQL (Supabase 관리형) |
+| 인증 | Google OAuth 2.0 + JWT RS256 + HttpOnly **SameSite=None** Cookie |
+| AI 분석 | OpenAI GPT-4o Vision (최대 2장 병렬, 90초 타임아웃) |
+| 레시피 | GPT-4o AI 직접 생성 — 2단계 (후보 3개 → 상세 레시피) |
+| 쿼터 | feature별 분리: analysis(Free 5 / Pro 30), recipe(Free 10 / Pro 30) |
+| 결제 | Polar.sh 월정액 구독 + HMAC 웹훅 검증 |
+| 프론트 배포 | Vercel (GitHub 자동 배포, allow_origin_regex로 PR 미리보기 허용) |
+| 백엔드 배포 | Railway (Docker, railway.toml) |
 | 쿼터 초기화 기준 | KST(UTC+9) 매월 1일 00:00 |
-| 이미지 정책 | 임시 처리 후 즉시 삭제, 영구 저장 없음 |
-| 무료 한도 | 월 5회 AI 분석 |
+| 이미지 정책 | 분석 후 즉시 메모리 해제, 영구 저장 없음 |
+| 북마크 | localStorage 기반 (서버 API 없음) |
+| 관리자 | ADMIN_UNLIMITED=99999, AdminPanel 플로팅 컴포넌트 |
 
 ---
 
