@@ -125,20 +125,26 @@ export default function SubscriptionPage() {
             {!isPremium && (
               <div
                 className="rounded-2xl p-5 mb-5 flex items-start gap-4"
-                style={{ background: 'linear-gradient(135deg, #0D1F1A 0%, #133027 100%)', border: '1.5px solid #1D9E75' }}
+                style={{ background: '#fff', border: '1.5px solid #1D9E75' }}
               >
-                <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-xl" style={{ background: 'rgba(29,158,117,0.2)' }}>
+                <div
+                  className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-xl"
+                  style={{ background: '#E1F5EE' }}
+                >
                   🎁
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm mb-0.5" style={{ color: '#5DCAA5' }}>첫 구매 30일 무료 체험</p>
-                  <p className="text-xs leading-relaxed" style={{ color: '#9FE1CB' }}>
+                  <p className="font-bold text-sm mb-1" style={{ color: '#1D9E75' }}>첫 구매 30일 무료 체험</p>
+                  <p className="text-xs leading-relaxed" style={{ color: '#5F5E5A' }}>
                     프리미엄 플랜 최초 구독 시 30일 무료로 사용해 보세요.<br />
                     AI 레시피 월 30회 · 냉장고 분석 월 30회 — 언제든 취소 가능합니다.
                   </p>
-                  <p className="text-xs mt-2 font-semibold" style={{ color: '#FAC775' }}>
+                  <span
+                    className="inline-block text-xs mt-2 font-semibold px-2.5 py-0.5 rounded-full"
+                    style={{ background: '#E1F5EE', color: '#1D9E75' }}
+                  >
                     ★ 체험 기간 내 취소 시 요금 없음
-                  </p>
+                  </span>
                 </div>
               </div>
             )}
