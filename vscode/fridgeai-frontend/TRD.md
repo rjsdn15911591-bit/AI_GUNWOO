@@ -303,6 +303,8 @@ CREATE INDEX idx_webhook_events_processed ON webhook_events(processed);
 | DELETE | `/api/v1/fridge/ingredients/:id` | 재료 삭제 | 예 |
 | POST | `/api/v1/fridge/ingredients/classify` | AI로 'other' 재료 카테고리 재분류 (최대 30개) | 예 |
 
+> **일괄 삭제 구현 방식**: 별도 bulk DELETE API 없음. 프론트엔드에서 `Promise.all(ids.map(id => DELETE /api/v1/fridge/ingredients/:id))`로 병렬 개별 삭제 처리. 낙관적 즉시 UI 제거 후 실패 시 서버 상태로 복원.
+
 ### E3. AI 분석 API
 
 | Method | 경로 | 설명 | 인증 |
@@ -379,6 +381,9 @@ CREATE INDEX idx_webhook_events_processed ON webhook_events(processed);
   "tastes": ["담백한", "간단한"]
 }
 ```
+
+> **지원 맛 필터 (tastes)**: `매운음식` / `단음식` / `짠음식` / `다이어트`  
+> `다이어트` 선택 시 GPT-4o 프롬프트에 저칼로리·고단백 지침이 추가되어 식단 친화적 레시피 후보가 생성됩니다.
 
 #### `POST /api/v1/recipes/ai/generate` 요청
 
@@ -679,6 +684,14 @@ JSON만 반환하세요.
 | ≥ 80% | "지금 바로 만들 수 있어요!" | Green |
 | 50~79% | "재료 N개만 더 있으면" | Amber |
 | < 50% | "재료 일부 필요" | Gray |
+
+### J4. 영양 정보 표시 (RecipeDetail)
+
+- AI 생성 레시피 응답에 `nutrition` 필드가 포함될 경우 레시피 상세 페이지 하단에 2×2 그리드 카드로 표시
+- 표시 항목: 칼로리(kcal) · 단백질(g) · 탄수화물(g) · 지방(g) — 1인분 기준
+- 조건부 렌더링: `nutrition` 필드 자체가 없거나 모든 값이 `null`이면 섹션 숨김
+- 프론트엔드 TypeScript 타입: `nutrition?: { calories?: number; protein?: number; carbs?: number; fat?: number }`
+- 백엔드 레시피 생성 프롬프트에서 `nutrition` 필드 반환 시 자동 표시 (현재 AI가 반환하는 경우에만 표시)
 
 ---
 

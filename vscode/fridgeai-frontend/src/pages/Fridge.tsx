@@ -135,6 +135,56 @@ export default function Fridge() {
   const [addExpiry, setAddExpiry] = useState('')
   const [adding, setAdding] = useState(false)
 
+  // ── 일괄 선택 삭제 ──────────────────────────────────────────────────────────
+  const [selectionMode, setSelectionMode] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [bulkDeleting, setBulkDeleting] = useState(false)
+
+  const toggleSelection = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
+  const selectAll = () => {
+    const allIds = fridge?.ingredients.map((i) => i.id) ?? []
+    setSelectedIds(new Set(allIds))
+  }
+
+  const enterSelectionMode = () => {
+    setSelectionMode(true)
+    setSelectedIds(new Set())
+    setEditingId(null)
+    setShowAddForm(false)
+  }
+
+  const exitSelectionMode = () => {
+    setSelectionMode(false)
+    setSelectedIds(new Set())
+  }
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return
+    if (!confirm(`선택한 재료 ${selectedIds.size}개를 삭제하시겠습니까?`)) return
+    setBulkDeleting(true)
+    const ids = Array.from(selectedIds)
+    // 낙관적 즉시 제거
+    setFridge((prev) => prev
+      ? { ...prev, ingredients: prev.ingredients.filter((i) => !selectedIds.has(i.id)) }
+      : prev
+    )
+    exitSelectionMode()
+    try {
+      await Promise.all(ids.map((id) => deleteIngredient(id)))
+    } catch {
+      load() // 실패 시 서버 상태로 복원
+    } finally {
+      setBulkDeleting(false)
+    }
+  }
+
   const inputStyle: React.CSSProperties = {
     border: '1px solid #D3D1C7',
     borderRadius: 8,
@@ -255,27 +305,50 @@ export default function Fridge() {
         className="px-5 py-4 flex items-center"
         style={{ background: '#0D1F1A', position: 'relative' }}
       >
-        <Link
-          to="/dashboard"
-          className="text-xs font-medium px-3 py-1.5 rounded-lg transition-all"
-          style={{ color: '#9FE1CB', border: '1px solid rgba(93,202,165,0.25)', zIndex: 1 }}
-        >
-          ← 대시보드
-        </Link>
+        {selectionMode ? (
+          <button
+            onClick={exitSelectionMode}
+            className="text-xs font-medium px-3 py-1.5 rounded-lg transition-all"
+            style={{ color: '#9FE1CB', border: '1px solid rgba(93,202,165,0.25)', zIndex: 1 }}
+          >
+            취소
+          </button>
+        ) : (
+          <Link
+            to="/dashboard"
+            className="text-xs font-medium px-3 py-1.5 rounded-lg transition-all"
+            style={{ color: '#9FE1CB', border: '1px solid rgba(93,202,165,0.25)', zIndex: 1 }}
+          >
+            ← 대시보드
+          </Link>
+        )}
         <span style={{
           position: 'absolute', left: '50%', transform: 'translateX(-50%)',
           fontFamily: "'Playfair Display', Georgia, serif", fontWeight: 700, fontSize: 16,
           color: '#F1EFE8', letterSpacing: '-0.01em', whiteSpace: 'nowrap',
         }}>냉장고 관리</span>
-        <button
-          onClick={() => setShowAddForm((v) => !v)}
-          className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ml-auto"
-          style={{ background: '#1D9E75', color: '#fff', zIndex: 1 }}
-          onMouseEnter={e => (e.currentTarget.style.background = '#17845F')}
-          onMouseLeave={e => (e.currentTarget.style.background = '#1D9E75')}
-        >
-          + 추가
-        </button>
+        <div className="flex items-center gap-2 ml-auto" style={{ zIndex: 1 }}>
+          {!selectionMode && total > 0 && (
+            <button
+              onClick={enterSelectionMode}
+              className="text-xs font-medium px-3 py-1.5 rounded-lg transition-all"
+              style={{ color: '#FAC775', border: '1px solid rgba(250,199,117,0.35)' }}
+            >
+              선택 삭제
+            </button>
+          )}
+          {!selectionMode && (
+            <button
+              onClick={() => setShowAddForm((v) => !v)}
+              className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
+              style={{ background: '#1D9E75', color: '#fff' }}
+              onMouseEnter={e => (e.currentTarget.style.background = '#17845F')}
+              onMouseLeave={e => (e.currentTarget.style.background = '#1D9E75')}
+            >
+              + 추가
+            </button>
+          )}
+        </div>
       </div>
 
       {/* ── 수동 재료 추가 폼 ── */}
@@ -328,6 +401,35 @@ export default function Fridge() {
               취소
             </button>
           </div>
+        </div>
+      )}
+
+      {/* ── 선택 삭제 툴바 ── */}
+      {selectionMode && (
+        <div
+          className="px-5 py-3 flex items-center justify-between"
+          style={{ background: 'rgba(250,199,117,0.08)', borderBottom: '1px solid rgba(250,199,117,0.25)' }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-medium" style={{ color: '#9A7A2A' }}>
+              {selectedIds.size > 0 ? `${selectedIds.size}개 선택됨` : '재료를 선택하세요'}
+            </span>
+            <button
+              onClick={selectAll}
+              className="text-xs font-medium"
+              style={{ color: '#1D9E75' }}
+            >
+              전체 선택
+            </button>
+          </div>
+          <button
+            onClick={handleBulkDelete}
+            disabled={selectedIds.size === 0 || bulkDeleting}
+            className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all disabled:opacity-40"
+            style={{ background: '#C0392B', color: '#fff' }}
+          >
+            {bulkDeleting ? '삭제 중...' : `🗑 삭제 (${selectedIds.size}개)`}
+          </button>
         </div>
       )}
 
@@ -445,8 +547,37 @@ export default function Fridge() {
                               /* ── 보기 모드 ── */
                               <div
                                 className="px-4 py-3 flex justify-between items-start"
-                                style={expired ? { background: 'rgba(220,80,80,0.05)' } : expiringSoon ? { background: 'rgba(250,199,117,0.08)' } : undefined}
+                                onClick={selectionMode ? () => toggleSelection(ing.id) : undefined}
+                                style={{
+                                  cursor: selectionMode ? 'pointer' : undefined,
+                                  ...(selectionMode && selectedIds.has(ing.id)
+                                    ? { background: 'rgba(29,158,117,0.08)', borderLeft: '3px solid #1D9E75' }
+                                    : expired
+                                    ? { background: 'rgba(220,80,80,0.05)' }
+                                    : expiringSoon
+                                    ? { background: 'rgba(250,199,117,0.08)' }
+                                    : undefined),
+                                }}
                               >
+                                {selectionMode && (
+                                  <div className="flex items-center mr-3 flex-shrink-0 pt-0.5">
+                                    <div
+                                      className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0"
+                                      style={{
+                                        background: selectedIds.has(ing.id) ? '#1D9E75' : '#fff',
+                                        border: selectedIds.has(ing.id) ? '2px solid #1D9E75' : '2px solid #D3D1C7',
+                                        transition: 'all 150ms',
+                                      }}
+                                    >
+                                      {selectedIds.has(ing.id) && (
+                                        <svg width="12" height="9" viewBox="0 0 12 9" fill="none">
+                                          <path d="M1 4L4.5 7.5L11 1" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-1.5 flex-wrap">
                                     <span className="font-semibold text-sm" style={{ color: '#1A1A1A' }}>{ing.name}</span>
@@ -493,22 +624,24 @@ export default function Fridge() {
                                   )}
                                 </div>
 
-                                <div className="flex items-center gap-2 ml-3 flex-shrink-0 pt-0.5">
-                                  <button
-                                    onClick={() => startEdit(ing)}
-                                    className="text-xs font-medium transition-all"
-                                    style={{ color: '#1D9E75' }}
-                                  >
-                                    수정
-                                  </button>
-                                  <button
-                                    onClick={() => handleDelete(ing.id)}
-                                    className="text-xs font-medium transition-all"
-                                    style={{ color: '#C0392B' }}
-                                  >
-                                    삭제
-                                  </button>
-                                </div>
+                                {!selectionMode && (
+                                  <div className="flex items-center gap-2 ml-3 flex-shrink-0 pt-0.5">
+                                    <button
+                                      onClick={() => startEdit(ing)}
+                                      className="text-xs font-medium transition-all"
+                                      style={{ color: '#1D9E75' }}
+                                    >
+                                      수정
+                                    </button>
+                                    <button
+                                      onClick={() => handleDelete(ing.id)}
+                                      className="text-xs font-medium transition-all"
+                                      style={{ color: '#C0392B' }}
+                                    >
+                                      삭제
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>

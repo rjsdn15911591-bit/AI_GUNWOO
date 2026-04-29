@@ -121,6 +121,28 @@ export default function SubscriptionPage() {
               )}
             </div>
 
+            {/* ── 첫 구매 30일 무료 혜택 안내 (비프리미엄 전용) ── */}
+            {!isPremium && (
+              <div
+                className="rounded-2xl p-5 mb-5 flex items-start gap-4"
+                style={{ background: 'linear-gradient(135deg, #0D1F1A 0%, #133027 100%)', border: '1.5px solid #1D9E75' }}
+              >
+                <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-xl" style={{ background: 'rgba(29,158,117,0.2)' }}>
+                  🎁
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm mb-0.5" style={{ color: '#5DCAA5' }}>첫 구매 30일 무료 체험</p>
+                  <p className="text-xs leading-relaxed" style={{ color: '#9FE1CB' }}>
+                    프리미엄 플랜 최초 구독 시 30일 무료로 사용해 보세요.<br />
+                    AI 레시피 월 30회 · 냉장고 분석 월 30회 — 언제든 취소 가능합니다.
+                  </p>
+                  <p className="text-xs mt-2 font-semibold" style={{ color: '#FAC775' }}>
+                    ★ 체험 기간 내 취소 시 요금 없음
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* ── 플랜 비교 ── */}
             <div className="rounded-2xl p-5 mb-5" style={{ background: '#fff', border: '0.5px solid #D3D1C7' }}>
               <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: '0.18em', color: '#888780', textTransform: 'uppercase', marginBottom: 14 }}>Plan Comparison</p>

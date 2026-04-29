@@ -62,6 +62,7 @@ export interface Recipe {
   matched_ingredients: string[]
   missing_count: number
   missing_ingredients: string[]
+  nutrition?: { calories?: number; protein?: number; carbs?: number; fat?: number }
 }
 
 export interface Subscription {

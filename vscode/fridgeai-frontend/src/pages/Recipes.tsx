@@ -16,9 +16,9 @@ const CATEGORY_EMOJI: Record<Category, string> = {
 type AIStep = 'idle' | 'preferences' | 'fetching' | 'candidates' | 'generating' | 'recipe'
 
 const FOOD_TYPES = ['밥류', '면류', '빵류', '기타'] as const
-const TASTE_OPTIONS = ['매운음식', '단음식', '짠음식'] as const
+const TASTE_OPTIONS = ['매운음식', '단음식', '짠음식', '다이어트'] as const
 const FOOD_EMOJI: Record<string, string> = { '밥류': '🍚', '면류': '🍜', '빵류': '🍞', '기타': '✏️' }
-const TASTE_EMOJI: Record<string, string> = { '매운음식': '🌶️', '단음식': '🍯', '짠음식': '🧂' }
+const TASTE_EMOJI: Record<string, string> = { '매운음식': '🌶️', '단음식': '🍯', '짠음식': '🧂', '다이어트': '🥗' }
 
 export default function Recipes() {
   const [recipes, setRecipes] = useState<Recipe[]>([])

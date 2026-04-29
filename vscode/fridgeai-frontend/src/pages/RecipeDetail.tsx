@@ -16,6 +16,7 @@ interface RecipeDetail {
   ingredients_detail: string[]
   instructions: { step: number; description: string }[]
   tips: string | null
+  nutrition?: { calories?: number; protein?: number; carbs?: number; fat?: number }
 }
 
 export default function RecipeDetail() {
@@ -260,6 +261,37 @@ export default function RecipeDetail() {
                   {line}
                 </p>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* 영양 정보 */}
+        {recipe.nutrition && Object.values(recipe.nutrition).some((v) => v != null) && (
+          <div className="rounded-2xl p-4" style={{ background: '#fff', border: '0.5px solid #D3D1C7' }}>
+            <h3 className="font-bold mb-3 flex items-center gap-2 text-sm" style={{ color: '#1A1A1A' }}>
+              📊 영양 정보
+              <span className="text-xs font-normal" style={{ color: '#888780' }}>(1인분 기준)</span>
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { label: '칼로리', value: recipe.nutrition.calories, unit: 'kcal', icon: '🔥' },
+                { label: '단백질', value: recipe.nutrition.protein, unit: 'g', icon: '💪' },
+                { label: '탄수화물', value: recipe.nutrition.carbs, unit: 'g', icon: '🌾' },
+                { label: '지방', value: recipe.nutrition.fat, unit: 'g', icon: '🫒' },
+              ].map(({ label, value, unit, icon }) =>
+                value != null ? (
+                  <div
+                    key={label}
+                    className="rounded-xl px-3 py-2.5 flex flex-col gap-0.5"
+                    style={{ background: '#F5F3EE', border: '0.5px solid #E8E4DC' }}
+                  >
+                    <span className="text-xs" style={{ color: '#888780' }}>{icon} {label}</span>
+                    <span className="font-bold text-base" style={{ color: '#1A1A1A', letterSpacing: '-0.02em' }}>
+                      {value}<span className="text-xs font-normal ml-0.5" style={{ color: '#5F5E5A' }}>{unit}</span>
+                    </span>
+                  </div>
+                ) : null
+              )}
             </div>
           </div>
         )}
