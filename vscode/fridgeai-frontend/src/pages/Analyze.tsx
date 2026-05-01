@@ -101,8 +101,13 @@ export default function Analyze() {
     try {
       await bulkAddIngredients(items.map((i) => ({ name: i.name, quantity: i.quantity ?? undefined, unit: i.unit ?? undefined })))
       navigate('/fridge')
-    } catch {
-      setError('냉장고 반영에 실패했습니다. 다시 시도해주세요.')
+    } catch (err: unknown) {
+      const anyErr = err as { code?: string }
+      if (anyErr.code === 'ECONNABORTED') {
+        setError('서버 응답이 지연되고 있습니다. 잠시 후 다시 시도해주세요.')
+      } else {
+        setError('냉장고 반영에 실패했습니다. 다시 시도해주세요.')
+      }
     } finally {
       setApplying(false)
     }

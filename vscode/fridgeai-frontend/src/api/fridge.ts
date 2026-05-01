@@ -19,7 +19,7 @@ export const deleteIngredient = (id: string) =>
 
 export const bulkAddIngredients = (
   items: { name: string; quantity?: number; unit?: string }[]
-) => api.post('/api/v1/fridge/ingredients/bulk', items).then((r) => r.data)
+) => api.post('/api/v1/fridge/ingredients/bulk', items, { timeout: 30_000 }).then((r) => r.data)
 
 export const classifyIngredients = (
   names: string[]
